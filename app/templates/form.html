@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>タスク新規作成 - タスク管理システム</title>
+    <link
+        href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+        rel="stylesheet"
+    />
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"
+    />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css') }}">
+
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen py-8 px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- ヘッダー -->
+            <div class="header-gradient rounded-2xl p-8 mb-8 text-white shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-4xl font-bold mb-2">
+                            <i class="fas fa-plus-circle mr-3"></i>タスク新規作成
+                        </h1>
+                        <p class="text-blue-100">新しいタスクを作成して、効率的に管理しましょう</p>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="bg-white bg-opacity-20 rounded-xl p-4">
+                            <i class="fas fa-clipboard-list text-4xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- メインフォーム -->
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="p-8">
+                    <form action="/tasks" method="POST" class="space-y-6">
+                        <!-- タイトル -->
+                        <div class="form-section">
+                            <label for="title" class="block text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-heading text-blue-600 mr-2"></i>
+                                タイトル
+                                <span class="required-asterisk ml-1">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                required
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium"
+                                placeholder="タスクのタイトルを入力してください"
+                            />
+                        </div>
+
+                        <!-- 詳細 -->
+                        <div class="form-section">
+                            <label for="description" class="block text-lg font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-align-left text-green-600 mr-2"></i>
+                                詳細
+                            </label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                rows="4"
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 resize-none"
+                                placeholder="タスクの詳細な説明を入力してください（任意）"
+                            ></textarea>
+                        </div>
+
+                        <!-- 期限日とカテゴリ -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-section">
+                                <label for="due_date" class="block text-lg font-semibold text-gray-800 mb-3">
+                                    <i class="fas fa-calendar-alt text-red-600 mr-2"></i>
+                                    期限日
+                                </label>
+                                <input
+                                    type="date"
+                                    id="due_date"
+                                    name="due_date"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                                />
+                            </div>
+
+                            <div class="form-section">
+                                <label for="category" class="block text-lg font-semibold text-gray-800 mb-3">
+                                    <i class="fas fa-folder text-purple-600 mr-2"></i>
+                                    カテゴリ
+                                </label>
+                                <input
+                                    type="text"
+                                    id="category"
+                                    name="category"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                                    placeholder="例: 仕事、個人、学習"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- 状態と優先度 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-section">
+                                <label for="status" class="block text-lg font-semibold text-gray-800 mb-3">
+                                    <i class="fas fa-tasks text-blue-600 mr-2"></i>
+                                    状態
+                                </label>
+                                <select
+                                    id="status"
+                                    name="status"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                                >
+                                    <option value="">選択してください</option>
+                                    <option value="進行中">進行中</option>
+                                    <option value="保留">保留</option>
+                                    <option value="完了">完了</option>
+                                </select>
+                            </div>
+
+                            <div class="form-section">
+                                <label for="priority" class="block text-lg font-semibold text-gray-800 mb-3">
+                                    <i class="fas fa-flag text-orange-600 mr-2"></i>
+                                    優先度
+                                </label>
+                                <select
+                                    id="priority"
+                                    name="priority"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                                >
+                                    <option value="">選択してください</option>
+                                    <option value="高">🔴 高</option>
+                                    <option value="中">🟡 中</option>
+                                    <option value="低">🟢 低</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- ボタンエリア -->
+                        <div class="pt-8 border-t border-gray-200">
+                            <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                                <a
+                                    href="/tasks"
+                                    class="btn-secondary inline-flex items-center justify-center px-8 py-3 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg text-center"
+                                >
+                                    <i href="/tasks" class="fas fa-times mr-2"></i>
+                                    キャンセル
+                                </a>
+                                <button
+                                    type="submit"
+                                    class="btn-primary inline-flex items-center justify-center px-8 py-3 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg"
+                                >
+                                    <i class="fas fa-save mr-2"></i>
+                                    タスクを登録
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // フォーム要素にフォーカス効果を追加
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+
+            // フォーム送信時の確認
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                
+                // 送信確認
+                if (confirm('タスクを登録してもよろしいですか？')) {
+                    return true;
+                }
+                else {
+                    //キャンセルボタンが押されたら処理止める
+                    e.preventDefault();
+                }
+            });
+
+            // タイトル入力時のリアルタイムバリデーション
+            const titleInput = document.getElementById('title');
+            titleInput.addEventListener('input', function() {
+                if (this.value.trim().length > 0) {
+                    this.style.borderColor = '#10b981';
+                } else {
+                    this.style.borderColor = '#d1d5db';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

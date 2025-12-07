@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env
+venv/
+.env
+
+# Docker
+pgdata/
+*.log
+
+# Flask session data
+instance/
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,279 @@
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: linear-gradient(135deg, #89a7f7 0%, #a28ade 100%);
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* ガラス効果 */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.form-glass {
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(12px);
+}
+
+/* フォーム入力 */
+.form-input {
+    transition: all 0.3s ease;
+    border: 1px solid #c3cde6;
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+.form-input:focus,
+.input-focus:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(33, 33, 33, 0.15);
+    border-color: #667eea; /* #3b82f6に近い青 */
+    outline: none;
+    background-color: white;
+    /* input-focusのbox-shadow拡張は以下に統合 */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(33, 33, 33, 0.15);
+}
+
+/* ボタン共通 */
+.btn-hover, .btn-primary, .btn-secondary, .action-btn {
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ホバー効果 */
+.btn-hover:hover,
+.btn-primary:hover,
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(33, 33, 33, 0.15);
+}
+
+.action-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(33, 33, 33, 0.15);
+}
+
+/* ボタン色 */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #5a72d8 100%);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5568c1 0%, #4a58a3 100%);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #8a9298 0%, #6c757d 100%);
+    color: #f0f0f0;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+}
+
+/* アクションボタンの色バリエーション */
+.action-btn.bg-blue-500 {
+    background-color: #4f6bed;
+    color: white;
+}
+
+.action-btn.bg-blue-500:hover {
+    background-color: #3e59c4;
+}
+
+.action-btn.bg-green-500 {
+    background-color: #4caf50;
+    color: white;
+}
+
+.action-btn.bg-green-500:hover {
+    background-color: #388e3c;
+}
+
+.action-btn.bg-red-500 {
+    background-color: #e04f4f;
+    color: white;
+}
+
+.action-btn.bg-red-500:hover {
+    background-color: #b03a3a;
+}
+
+/* 削除・更新・キャンセルボタン */
+.delete-btn {
+    background: linear-gradient(45deg, #ef5350, #d32f2f);
+    color: white;
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+    background: linear-gradient(45deg, #b03a3a, #7a2525);
+    box-shadow: 0 8px 25px rgba(176, 58, 58, 0.5);
+}
+
+.update-btn {
+    background: linear-gradient(45deg, #64b5f6, #1976d2);
+    color: white;
+    border-radius: 1rem;
+}
+
+.cancel-btn {
+    background: linear-gradient(45deg, #757575, #424242);
+    color: white;
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+    background: linear-gradient(45deg, #545454, #222222);
+    box-shadow: 0 8px 25px rgba(84, 84, 84, 0.5);
+}
+
+/* ヘッダー */
+.header-gradient {
+    background: linear-gradient(135deg, #546de5 0%, #303f9f 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 8px 20px rgba(33, 33, 33, 0.15);
+}
+.header-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; /* 文字色は白 */
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 8px 20px rgba(33, 33, 33, 0.15);
+}
+
+/* フォーカス時の入力フォーム（select対応） */
+select:focus {
+    outline: none;
+    border-color: #4f6bed;
+    box-shadow: 0 0 6px 2px rgba(79, 107, 237, 0.4);
+    transition: all 0.3s ease;
+    background-color: white;
+}
+
+/* タスクカード */
+.task-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid rgba(79, 107, 237, 0.6);
+    background: #f9faff;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.task-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(33, 33, 33, 0.12);
+}
+
+/* 優先度ラベル */
+.priority-high {
+    background: linear-gradient(45deg, #e57373, #ef5350);
+    color: white;
+}
+
+.priority-medium {
+    background: linear-gradient(45deg, #ffd54f, #ffb300);
+    color: #3e2723;
+}
+
+.priority-low {
+    background: linear-gradient(45deg, #81c784, #388e3c);
+    color: white;
+}
+
+/* ステータスラベル */
+.status-medium {
+    background: linear-gradient(45deg, #64b5f6, #1976d2);
+    color: white;
+}
+
+/* 統計カードのボーダー色 */
+.border-blue-500 { border-left-color: #4f6bed !important; }
+.border-red-500 { border-left-color: #e04f4f !important; }
+.border-yellow-500 { border-left-color: #f9c74f !important; }
+.border-green-500 { border-left-color: #4caf50 !important; }
+
+/* 統計カードのアイコン背景 */
+.bg-blue-100 { background-color: #dbe7ff !important; }
+.bg-red-100 { background-color: #f9d6d6 !important; }
+.bg-yellow-100 { background-color: #fff6d6 !important; }
+.bg-green-100 { background-color: #d6f2d6 !important; }
+
+/* フォントの色調整 */
+.text-gray-600 { color: #555; }
+.text-gray-700 { color: #444; }
+.text-gray-800 { color: #222; }
+
+/* フォームセクション */
+.form-section {
+    transition: all 0.3s ease;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.form-section:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* 必須マーク */
+.required-asterisk {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+select option {
+    background-color: white;
+    color: black;
+}
+
+/* login-card */
+.login-card {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+/* ボタンのホバー共通（btn-hoverの定義を統合） */
+.btn-hover {
+    transition: all 0.3s ease;
+}
+
+.btn-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* 浮遊アニメーション */
+.floating-animation {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+/* メッセージ */
+.error-message {
+    display: none;
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.success-message {
+    display: none;
+    color: #10b981;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}

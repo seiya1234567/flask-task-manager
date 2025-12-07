@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  app:
+    build: .                          # Dockerfile を使ってイメージをビルド
+    ports:
+      - "5001:5000"                   # ホスト:コンテナ のポートマッピング
+    container_name: app               # コンテナ名（省略可だが把握しやすい）
+    volumes:
+      - ./app:/usr/src/app            # ホストのソースコードをマウント（自動反映のため必須）
+    environment:
+      # Flask 2.3 以降は FLASK_ENV は非推奨
+      # 自動リロードを有効化するには FLASK_DEBUG=1 を明示する必要がある
+      FLASK_DEBUG: 1
+    command: flask run --host=0.0.0.0 --debug
+      # --host=0.0.0.0：外部アクセスを許可
+      # --debug：コード変更時の自動リロードやデバッグ情報を有効化
+    depends_on:
+      - db                            # app 起動前に db を起動させる
+
+  db:
+    image: postgres:latest            # 最新版の PostgreSQL イメージを使用
+    container_name: my-postgres       # コンテナ名
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_USER: myuser
+      POSTGRES_DB: mydatabase         # 初回起動時に作成される DB 名
+    ports:
+      - "5432:5432"                   # PostgreSQL のポート公開
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+        # 永続化ボリューム：コンテナ削除してもデータが残る
+
+volumes:
+  pgdata:                             # PostgreSQL 用の永続ボリューム

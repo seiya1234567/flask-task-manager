@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>タスク編集</title>
+    <link
+        href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+        rel="stylesheet"
+    />
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"
+    />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css') }}">
+
+</head>
+<body>
+    <div class="min-h-screen py-8 px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- ヘッダー -->
+            <div class="header-gradient rounded-2xl p-8 mb-8 text-white shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-4xl font-bold mb-2">
+                            <i class="fas fa-edit mr-3"></i>タスク編集
+                        </h1>
+                        <p class="text-blue-100">既存のタスクを編集・更新できます</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-blue-100 mb-1">タスクID</div>
+                        <div class="text-2xl font-bold">#{{ '%03d' | format(task.id) }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 編集フォーム -->
+            <div class="form-glass rounded-2xl shadow-2xl overflow-hidden">
+                <div class="p-8">
+                    <form action="/tasks/{{ task.id }}" method="POST">
+                        <input type="hidden" name="_method" value="PUT">
+                        
+                        <!-- タイトル -->
+                        <div class="mb-6">
+                            <label for="title" class="block text-lg font-semibold text-gray-700 mb-3">
+                                <i class="fas fa-heading text-blue-500 mr-2"></i>
+                                タイトル<span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 input-focus text-lg"
+                                id="title" 
+                                name="title" 
+                                value="{{ task.title }}" 
+                                required
+                                placeholder="タスクのタイトルを入力"
+                            >
+                        </div>
+
+                        <!-- 詳細説明 -->
+                        <div class="mb-6">
+                            <label for="description" class="block text-lg font-semibold text-gray-700 mb-3">
+                                <i class="fas fa-align-left text-green-500 mr-2"></i>
+                                詳細説明
+                            </label>
+                            <textarea 
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 input-focus resize-none"
+                                id="description" 
+                                name="description" 
+                                rows="4"
+                                placeholder="タスクの詳細な説明を入力"
+                            >{{ task.description }}</textarea>
+                        </div>
+
+                        <!-- 期限日と作成日 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="due_date" class="block text-lg font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-calendar-alt text-red-500 mr-2"></i>
+                                    期限日
+                                </label>
+                                <input 
+                                    type="date" 
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 input-focus"
+                                    id="due_date" 
+                                    name="due_date"
+                                    value="{{ task.due_date }}"
+                                >
+                            </div>
+                            <div>
+                                <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-plus-circle text-blue-500 mr-2"></i>
+                                    作成日
+                                </label>
+                                <div class="w-full px-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-xl text-gray-600">
+                                    {{ task.created_at }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 状態と優先度 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="status" class="block text-lg font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-tasks text-blue-500 mr-2"></i>
+                                    状態
+                                </label>
+                                <select 
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 input-focus"
+                                    id="status" 
+                                    name="status"
+                                >
+                                    <option value="" {% if task.status == "" %}selected{% endif %}>選択してください</option>
+                                    <option value="進行中" {% if task.status == "進行中" %}selected{% endif %}>進行中</option>
+                                    <option value="保留" {% if task.status == "保留" %}selected{% endif %}>保留</option>
+                                    <option value="完了" {% if task.status == "完了" %}selected{% endif %}>完了</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="priority" class="block text-lg font-semibold text-gray-700 mb-3">
+                                    <i class="fas fa-exclamation-triangle text-orange-500 mr-2"></i>
+                                    優先度
+                                </label>
+                                <select 
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 input-focus"
+                                    id="priority" 
+                                    name="priority"
+                                >
+                                <option value="" {% if task.priority == "" %}selected{% endif %}>選択してください</option>
+                                <option value="高" {% if task.priority == "高" %}selected{% endif %}>高</option>
+                                <option value="中" {% if task.priority == "中" %}selected{% endif %}>中</option>
+                                <option value="低" {% if task.priority == "低" %}selected{% endif %}>低</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- カテゴリ -->
+                        <div class="mb-8">
+                            <label for="category" class="block text-lg font-semibold text-gray-700 mb-3">
+                                <i class="fas fa-tag text-purple-500 mr-2"></i>
+                                カテゴリ
+                            </label>
+                            <input 
+                                type="text" 
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 input-focus"
+                                id="category" 
+                                name="category"
+                                value="{{ task.category }}" 
+                                placeholder="カテゴリを入力"
+                            >
+                        </div>
+
+                        <!-- ボタンエリア -->
+                        <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-200">
+                            <button 
+                                type="submit" 
+                                class="update-btn btn-hover text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg flex items-center"
+                            >
+                                <i class="fas fa-save mr-2"></i>
+                                更新する
+                            </button>
+                            <a 
+                                href="/tasks"
+                                class="cancel-btn btn-hover text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg flex items-center no-underline"
+                            >
+                                <i class="fas fa-arrow-left mr-2"></i>
+                                キャンセル
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // フォームのインタラクティブ機能
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // 優先度の色表示
+            const prioritySelect = document.getElementById('priority');
+            prioritySelect.addEventListener('change', function() {
+                this.classList.remove('priority-high', 'priority-medium', 'priority-low');
+                if (this.value === '高') {
+                    this.classList.add('priority-high');
+                } else if (this.value === '中') {
+                    this.classList.add('priority-medium');
+                } else if (this.value === '低') {
+                    this.classList.add('priority-low');
+                }
+            });
+
+            // 初期状態で優先度の色を設定
+            if (prioritySelect.value === '高') {
+                prioritySelect.classList.add('priority-high');
+            } else if (prioritySelect.value === '中') {
+                prioritySelect.classList.add('priority-medium');
+            } else if (prioritySelect.value === '低') {
+                prioritySelect.classList.add('priority-low');
+            }
+
+            // フォーム送信時の確認
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                if (confirm('タスクを更新しますか？')) {
+                    return true;
+                }
+                else {
+                    //キャンセルボタンが押されたら処理止める
+                    e.preventDefault()
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
