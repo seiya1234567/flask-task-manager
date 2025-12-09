@@ -31,10 +31,6 @@
                         </h1>
                         <p class="text-blue-100">既存のタスクを編集・更新できます</p>
                     </div>
-                    <div class="text-right">
-                        <div class="text-sm text-blue-100 mb-1">タスクID</div>
-                        <div class="text-2xl font-bold">#{{ '%03d' | format(task.id) }}</div>
-                    </div>
                 </div>
             </div>
 
@@ -178,6 +174,49 @@
         </div>
     </div>
 
+    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+            <div class="text-center">
+                <div class="text-blue-500 text-6xl mb-4">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">この内容で更新しますか？</h3>
+                <p class="text-gray-600 mb-8">問題なければ「更新する」を押してください。</p>
+                <div class="flex gap-4 justify-center">
+                    <button 
+                        onclick="executeUpdate()" 
+                        class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold shadow-lg"
+                    >
+                        更新する
+                    </button>
+                    <button 
+                        onclick="closeUpdateConfirmModal()" 
+                        class="cancel-btn btn-hover text-white px-6 py-3 rounded-xl font-semibold shadow-lg"
+                    >
+                        キャンセル
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 更新完了モーダル -->
+    <div id="updateSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center">
+            <div class="text-green-500 text-6xl mb-4">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">更新が完了しました</h3>
+            <p class="text-gray-600 mb-8">タスクは正常に更新されました。</p>
+
+            <button 
+                onclick="closeSuccessModal()" 
+                class="px-8 py-3 bg-green-500 text-white rounded-xl font-semibold shadow-lg hover:bg-green-600 transition"
+            >
+                OK
+            </button>
+        </div>
+    </div>
 
     <script>
         // フォームのインタラクティブ機能
@@ -206,17 +245,59 @@
             }
 
             // フォーム送信時の確認
+            function openUpdateConfirmModal() {
+                document.getElementById('confirmModal').classList.remove('hidden');
+                document.getElementById('confirmModal').classList.add('flex');
+            }
+
             const form = document.querySelector('form');
             form.addEventListener('submit', function(e) {
-                if (confirm('タスクを更新しますか？')) {
-                    return true;
-                }
-                else {
-                    //キャンセルボタンが押されたら処理止める
-                    e.preventDefault()
-                }
+                e.preventDefault(); // フォーム送信停止
+                openUpdateConfirmModal(); // モーダルを表示
             });
         });
+
+        function closeUpdateConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+            document.getElementById('confirmModal').classList.remove('flex');
+        }
+
+        // 更新実行
+        async function executeUpdate() {
+
+            const form = document.querySelector('form');
+            const actionUrl = form.getAttribute('action');
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(actionUrl, {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (response.ok) {
+                    closeUpdateConfirmModal();
+
+                    // 更新完了モーダルを表示
+                    document.getElementById('updateSuccessModal').classList.remove('hidden');
+                    document.getElementById('updateSuccessModal').classList.add('flex');
+
+                } else {
+                    alert("更新に失敗しました");
+                }
+
+            } catch (err) {
+                alert("通信エラーが発生しました");
+            }
+        }
+
+        // 成功モーダル非常時
+        function closeSuccessModal() {
+            document.getElementById('updateSuccessModal').classList.add('hidden');
+            document.getElementById('updateSuccessModal').classList.remove('flex');
+            window.location.href = "/tasks";
+        }
+
     </script>
 </body>
 </html>

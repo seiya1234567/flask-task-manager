@@ -167,6 +167,51 @@
         </div>
     </div>
 
+    <!-- 登録確認モーダル -->
+    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+            <div class="text-center">
+                <div class="text-blue-500 text-6xl mb-4">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">この内容で登録しますか？</h3>
+                <p class="text-gray-600 mb-8">問題なければ「登録する」を押してください。</p>
+                <div class="flex gap-4 justify-center">
+                    <button 
+                        onclick="executeRegister()" 
+                        class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold shadow-lg"
+                    >
+                        登録する
+                    </button>
+                    <button 
+                        onclick="closeConfirmModal()" 
+                        class="cancel-btn btn-hover text-white px-6 py-3 rounded-xl font-semibold shadow-lg"
+                    >
+                        キャンセル
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登録完了モーダル -->
+    <div id="registerSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center">
+            <div class="text-green-500 text-6xl mb-4">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">登録が完了しました</h3>
+            <p class="text-gray-600 mb-8">タスクは正常に登録されました。</p>
+
+            <button 
+                onclick="closeSuccessModal()" 
+                class="px-8 py-3 bg-green-500 text-white rounded-xl font-semibold shadow-lg hover:bg-green-600 transition"
+            >
+                OK
+            </button>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // フォーム要素にフォーカス効果を追加
@@ -182,17 +227,15 @@
             });
 
             // フォーム送信時の確認
+            function openUpdateConfirmModal() {
+                document.getElementById('confirmModal').classList.remove('hidden');
+                document.getElementById('confirmModal').classList.add('flex');
+            }
+
             const form = document.querySelector('form');
             form.addEventListener('submit', function(e) {
-                
-                // 送信確認
-                if (confirm('タスクを登録してもよろしいですか？')) {
-                    return true;
-                }
-                else {
-                    //キャンセルボタンが押されたら処理止める
-                    e.preventDefault();
-                }
+                e.preventDefault(); // フォーム送信停止
+                openUpdateConfirmModal(); // モーダルを表示
             });
 
             // タイトル入力時のリアルタイムバリデーション
@@ -205,6 +248,47 @@
                 }
             });
         });
+
+        async function executeRegister() {
+
+            const form = document.querySelector('form');
+            const actionUrl = form.getAttribute('action');
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(actionUrl, {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (response.ok) {
+                    closeConfirmModal();
+
+                    // 更新完了モーダルを表示
+                    document.getElementById('registerSuccessModal').classList.remove('hidden');
+                    document.getElementById('registerSuccessModal').classList.add('flex');
+
+                } else {
+                    alert("更新に失敗しました");
+                }
+
+            } catch (err) {
+                alert("通信エラーが発生しました");
+            }
+        }
+
+        // 確認モーダル非表示
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+            document.getElementById('confirmModal').classList.remove('flex');
+        }
+
+        // 成功モーダル非表示
+        function closeSuccessModal() {
+            document.getElementById('registerSuccessModal').classList.add('hidden');
+            document.getElementById('registerSuccessModal').classList.remove('flex');
+            window.location.href = "/tasks";
+        }
     </script>
 </body>
 </html>

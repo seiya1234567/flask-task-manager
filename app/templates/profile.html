@@ -98,6 +98,11 @@
                         <button type="submit" class="btn-primary px-8 py-3 text-white font-semibold rounded-xl shadow-lg">
                             <i class="fas fa-save mr-2"></i>変更を保存
                         </button>
+                            <!-- キャンセルボタン -->
+                        <a href="/tasks"
+                        class="px-8 py-3 bg-gray-300 text-gray-800 font-semibold rounded-xl shadow-lg hover:bg-gray-400 transition">
+                            <i class="fas fa-times mr-2"></i>キャンセル
+                        </a>
                     </div>
                 </form>
             </div>
@@ -160,6 +165,10 @@
                         <button type="submit" class="px-8 py-3 text-white font-semibold rounded-xl shadow-lg bg-red-600 hover:bg-red-700">
                             <i class="fas fa-key mr-2"></i>パスワード更新
                         </button>
+                        <a href="/tasks"
+                        class="px-8 py-3 bg-gray-300 text-gray-800 font-semibold rounded-xl shadow-lg hover:bg-gray-400 transition">
+                            <i class="fas fa-times mr-2"></i>キャンセル
+                        </a>
                     </div>
                 </form>
             </div>
@@ -176,17 +185,62 @@
                     アカウントを削除すると、すべてのタスクデータが消去され復元できません。
                 </p>
 
-                <form action="/delete_account" method="POST">
-                    <button type="submit"
-                        class="px-8 py-3 font-semibold rounded-xl shadow-lg bg-red-600 hover:bg-red-700 text-white">
-                        <i class="fas fa-user-slash mr-2"></i>アカウントを削除する
-                    </button>
-                </form>
+                <button 
+                    id="accountDeleteBtn"
+                    type="button"
+                    class="px-8 py-3 font-semibold rounded-xl shadow-lg bg-red-600 hover:bg-red-700 text-white">
+                    <i class="fas fa-user-slash mr-2"></i>アカウントを削除する
+                </button>
+            
             </div>
         </div>
 
     </div>
 </div>
+
+    <!-- アカウント削除確認モーダル -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+            <div class="text-center">
+                <div class="text-red-500 text-6xl mb-4">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">アカウントを削除しますか？</h3>
+                <p class="text-gray-600 mb-8">この操作は取り消すことができません。<br>本当に削除してもよろしいですか？</p>
+                <div class="flex gap-4 justify-center">
+                    <button onclick="executeAccountDelete()" 
+                        class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold shadow-lg">
+                        削除する
+                    </button>
+
+                    <button 
+                        onclick="closeDeleteModal()" 
+                        class="cancel-btn btn-hover text-white px-6 py-3 rounded-xl font-semibold shadow-lg"
+                    >
+                        キャンセル
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- アカウント削除完了モーダル -->
+    <div id="deleteSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center">
+            <div class="text-green-500 text-6xl mb-4">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">削除が完了しました</h3>
+            <p class="text-gray-600 mb-8">アカウントは正常に削除されました。</p>
+
+            <button 
+                onclick="closeSuccessModal()" 
+                class="px-8 py-3 bg-green-500 text-white rounded-xl font-semibold shadow-lg hover:bg-green-600 transition"
+            >
+                OK
+            </button>
+        </div>
+    </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -266,6 +320,63 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // -----------------------------
+    // アカウント削除モーダル制御
+    // -----------------------------
+
+    // モーダルを開く
+    function openDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    // モーダルを閉じる
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    // アカウント削除実行
+    async function executeAccountDelete() {
+        try {
+            const res = await fetch('/delete_account', {
+                method: 'POST'
+            });
+
+            closeDeleteModal();
+
+            if (res.ok) {
+                const modal = document.getElementById('deleteSuccessModal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                alert('アカウント削除に失敗しました');
+            }
+        } catch {
+            alert('通信エラーが発生しました');
+        }
+    }
+
+    // 完了モーダルを閉じてログイン画面へ
+    function closeSuccessModal() {
+        const modal = document.getElementById('deleteSuccessModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        location.href = '/login';
+    }
+
+    // ボタン押下イベント
+    const accountDeleteBtn = document.getElementById('accountDeleteBtn');
+    if (accountDeleteBtn) {
+        accountDeleteBtn.addEventListener('click', openDeleteModal);
+    }
+
+    window.openDeleteModal = openDeleteModal;
+    window.closeDeleteModal = closeDeleteModal;
+    window.executeAccountDelete = executeAccountDelete;
+    window.closeSuccessModal = closeSuccessModal;
 });
 </script>
 

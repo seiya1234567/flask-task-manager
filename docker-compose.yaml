@@ -22,9 +22,9 @@ services:
     image: postgres:latest            # 最新版の PostgreSQL イメージを使用
     container_name: my-postgres       # コンテナ名
     environment:
-      POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_USER: myuser
-      POSTGRES_DB: mydatabase         # 初回起動時に作成される DB 名
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"                   # PostgreSQL のポート公開
     volumes:

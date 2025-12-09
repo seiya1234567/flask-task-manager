@@ -308,7 +308,7 @@
         </div>
     </div>
 
-    <!-- 削除確認モーダル -->
+    <!-- タスク削除確認モーダル -->
     <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
             <div class="text-center">
@@ -332,6 +332,70 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- タスク削除完了モーダル -->
+    <div id="deleteSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center">
+            <div class="text-green-500 text-6xl mb-4">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">削除が完了しました</h3>
+            <p class="text-gray-600 mb-8">タスクは正常に削除されました。</p>
+
+            <button 
+                onclick="closeSuccessModal()" 
+                class="px-8 py-3 bg-green-500 text-white rounded-xl font-semibold shadow-lg hover:bg-green-600 transition"
+            >
+                OK
+            </button>
+        </div>
+    </div>
+
+    <!-- ログアウト確認モーダル -->
+    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+            <div class="text-center">
+                <div class="text-blue-500 text-6xl mb-4">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">ログアウトしますか？</h3>
+                <p class="text-gray-600 mb-8">問題なければ「OK」を押してください。</p>
+
+                <div class="flex gap-4 justify-center">
+                    <button 
+                        onclick="executeLogout()" 
+                        class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold shadow-lg"
+                    >
+                        OK
+                    </button>
+                    <button 
+                        onclick="closeConfirmModal()" 
+                        class="px-6 py-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl font-semibold shadow-lg"
+                    >
+                        キャンセル
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ログアウト完了モーダル -->
+    <div id="logoutSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center">
+            <div class="text-green-500 text-6xl mb-4">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">ログアウトが完了しました</h3>
+            <p class="text-gray-600 mb-8">正常にログアウトされました。</p>
+
+            <button
+                onclick="closeLogOutSuccessModal()"
+                class="px-8 py-3 bg-green-500 text-white rounded-xl font-semibold shadow-lg hover:bg-green-600 transition"
+            >
+                OK
+            </button>
         </div>
     </div>
 
@@ -397,7 +461,7 @@
             }
             });
 
-            //
+            // プロフィールボタン
             const profileBtn = document.getElementById('profileBtn');
             if(profileBtn) {
                 profileBtn.addEventListener('click', function() {
@@ -408,91 +472,136 @@
             // ログアウトボタン
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
-                logoutBtn.addEventListener('click', async () => {
-                    if (confirm('ログアウトしますか？')) {
-                        try {
-                        const res = await fetch('/logout', { method: 'POST' });
-                        if (res.ok) {
-                            alert('ログアウトしました');
-                            location.href = '/login'; 
-                        } else {
-                            alert('ログアウトに失敗しました');
-                        }
-                        } catch {
-                        alert('通信エラーが発生しました');
-                        }
-                            }
+                logoutBtn.addEventListener('click', () => {
+                    openLogoutConfirmModal();
                 });
             }
 
-        // 削除確認モーダル
-        function confirmDelete(taskId) {
-            currentDeleteTaskId = taskId; // タスクIDを保存
-            document.getElementById('deleteModal').classList.remove('hidden');
-            document.getElementById('deleteModal').classList.add('flex');
-        }
-
-        function closeDeleteModal() {
-            currentDeleteTaskId =  null; // タスクIDを削除
-            document.getElementById('deleteModal').classList.add('hidden');
-            document.getElementById('deleteModal').classList.remove('flex');
-        }
-
-        async function executeDelete(){
-            if (!currentDeleteTaskId) {
-            alert("削除するタスクが選択されていません。");
-            return;
+            // 削除確認モーダル表示
+            function confirmDelete(taskId) {
+                currentDeleteTaskId = taskId; // タスクIDを保存
+                document.getElementById('deleteModal').classList.remove('hidden');
+                document.getElementById('deleteModal').classList.add('flex');
             }
-            try
-            {
-                const response = await fetch(`/tasks/${currentDeleteTaskId}/delete`,
-                {
-                    method:"POST"
-                });
-                if (response.ok)
-                {
-                    alert(`タスク${currentDeleteTaskId}を削除しました`);
-                    location.reload();
+
+            // タスク削除モーダル非表示
+            function closeDeleteModal() {
+                currentDeleteTaskId =  null; // タスクIDを削除
+                document.getElementById('deleteModal').classList.add('hidden');
+                document.getElementById('deleteModal').classList.remove('flex');
+            }
+
+            // 成功通知モーダル非表示
+            function closeSuccessModal() {
+                document.getElementById('deleteSuccessModal').classList.add('hidden');
+                document.getElementById('deleteSuccessModal').classList.remove('flex');
+                location.reload(); // 画面を更新する
+            }
+
+            // タスク削除実行
+            async function executeDelete(){
+                if (!currentDeleteTaskId) {
+                    alert("削除するタスクが選択されていません。");
+                return;
                 }
-                else
+                try
                 {
-                    alert('削除に失敗しました');
+                    const response = await fetch(`/tasks/${currentDeleteTaskId}/delete`,
+                    {
+                        method:"POST"
+                    });
+                    if (response.ok)
+                    {
+                        // 削除確認モーダルを閉じる
+                        closeDeleteModal();
+
+                        // 成功モーダルを開く
+                        document.getElementById('deleteSuccessModal').classList.remove('hidden');
+                        document.getElementById('deleteSuccessModal').classList.add('flex');
+                    }
+                    else
+                    {
+                        alert('削除に失敗しました');
+                    }
+                }
+                catch
+                {
+                    alert('通信エラーが発生しました');
                 }
             }
-            catch
-            {
-                alert('通信エラーが発生しました');
+
+            // ログアウト確認モーダルを開く
+            function openLogoutConfirmModal() {
+                const modal = document.getElementById('confirmModal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
             }
-        }
 
-        document.querySelectorAll('.task-status').forEach(elem => {
-        const status = elem.dataset.status;  // 例: '進行中', '完了' など
-        const dueDateElem = document.getElementById('deadline-' + elem.dataset.taskId);
-        if (!dueDateElem) return;
-
-        const dueDateStr = dueDateElem.textContent.trim();
-        const now = new Date();
-        const deadline = new Date(dueDateStr);
-        const diffDays = (deadline - now) / (1000 * 60 * 60 * 24);
-
-        // 完了タスクはスキップ
-        if (status === '完了') return;
-
-        if (diffDays >= 0 && diffDays <= 7) {
-            // 今日から7日以内の期限は赤くする
-            dueDateElem.classList.add('text-red-600');
-        } else if (diffDays < 0) {
-            // 期限過ぎも赤くする（任意）
-            dueDateElem.classList.add('text-red-600');
-        }
-        });
-
-        // ESCキーでモーダルを閉じる
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeDeleteModal();
+            // ログアウト確認モーダルを閉じる
+            function closeConfirmModal() {
+                const modal = document.getElementById('confirmModal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
-        });
+
+            // ログアウト実行
+            async function executeLogout() {
+                try {
+                    const res = await fetch('/logout', { method: 'POST' });
+
+                    closeConfirmModal();
+
+                    if (res.ok) {
+                        // 完了モーダル表示
+                        const modal = document.getElementById('logoutSuccessModal');
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                    } else {
+                        alert('ログアウトに失敗しました');
+                    }
+                } catch {
+                    alert('通信エラーが発生しました');
+                }
+            }
+
+            // 完了モーダルを閉じてログインへ
+            function closeLogOutSuccessModal() {
+                const modal = document.getElementById('logoutSuccessModal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+
+                location.href = '/login';
+            }
+
+            document.querySelectorAll('.task-status').forEach(elem => {
+            const status = elem.dataset.status;  // 例: '進行中', '完了' など
+            const dueDateElem = document.getElementById('deadline-' + elem.dataset.taskId);
+            if (!dueDateElem) return;
+
+            const dueDateStr = dueDateElem.textContent.trim();
+            const now = new Date();
+            const deadline = new Date(dueDateStr);
+            const diffDays = (deadline - now) / (1000 * 60 * 60 * 24);
+
+            // 完了タスクはスキップ
+            if (status === '完了') return;
+
+            if (diffDays >= 0 && diffDays <= 7) {
+                // 今日から7日以内の期限は赤くする
+                dueDateElem.classList.add('text-red-600');
+            } else if (diffDays < 0) {
+                // 期限過ぎも赤くする（任意）
+                dueDateElem.classList.add('text-red-600');
+            }
+            });
+
+            // ESCキーでモーダルを閉じる
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeDeleteModal();
+                }
+            });
+
     </script>
 </body>
 </html>
