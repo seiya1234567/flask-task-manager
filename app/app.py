@@ -83,11 +83,13 @@ def load_user(user_id):
 
 
 # ----------------------------------------
-# TOPページ → ログイン画面を表示
+# TOPページ → ログイン済みならタスク一覧、未ログインならログイン画面
 # ----------------------------------------
 @app.route('/')
 def index():
-    return render_template("login.html")
+    if current_user.is_authenticated:
+        return redirect("/tasks")
+    return render_template("auth/login.html")
 
 
 # ----------------------------------------
@@ -98,7 +100,7 @@ def index():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
-        return render_template("register.html")
+        return render_template("auth/register.html")
 
     # POST の場合、入力内容を確認画面へ渡す
     username = request.form.get("username")
@@ -106,7 +108,7 @@ def register():
     password = request.form.get("password")
 
     return render_template(
-        "confirm.html",
+        "auth/confirm.html",
         username=username,
         email=email,
         password=password
@@ -136,7 +138,7 @@ def confirm():
 
     # エラーがあれば登録画面へ戻す
     if errors:
-        return render_template("register.html", errors=errors)
+        return render_template("auth/register.html", errors=errors)
 
     # パスワードをハッシュ化して保存
     password_hash = generate_password_hash(password)
@@ -189,7 +191,7 @@ def tasks():
         completed_count = tasks_query.filter(Task.status == '完了').count()
 
         return render_template(
-            "tasks.html",
+            "tasks/tasks.html",
             tasks=tasks_data,
             total_count=total_count,
             high_priority_count=high_priority_count,
@@ -252,7 +254,7 @@ def delete_task(id):
 @app.route("/tasks/new", methods=["GET"])
 @login_required
 def form():
-    return render_template("form.html")
+    return render_template("tasks/form.html")
 
 
 # ----------------------------------------
@@ -262,7 +264,7 @@ def form():
 @login_required
 def edit(id):
     task_data = Task.query.get_or_404(id)
-    return render_template("edit.html", task=task_data)
+    return render_template("tasks/edit.html", task=task_data)
 
 # ----------------------------------------
 # 編集内容の反映
@@ -301,7 +303,7 @@ def apply(id):
 @login_required
 def profile():
     if request.method == "GET":
-        return render_template("profile.html",user=current_user)
+        return render_template("profile/profile.html",user=current_user)
 
 # ----------------------------------------
 # 基本情報更新
@@ -313,11 +315,11 @@ def update_profile():
     new_username = request.form.get("username")
     new_email = request.form.get("email")
 
-    existing_email = User.query.filter_by(email=new_email).first()
+    existing_email = User.query.filter(User.email == new_email, User.id != user.id).first()
 
     if existing_email:
         flash("メールアドレスはすでに使われています", "error")
-        return render_template("profile.html", user=current_user)
+        return render_template("profile/profile.html", user=current_user)
 
     user.username = new_username
     user.email = new_email
@@ -342,7 +344,7 @@ def change_password():
     if not check_password_hash(user.password_hash, current_password):
         #errors["password"] = "パスワードが違います"
         flash("パスワードが違います", "error")
-        return render_template("profile.html", user=current_user)
+        return render_template("profile/profile.html", user=current_user)
         
     # パスワード更新
     user.password_hash = generate_password_hash(new_password)
@@ -384,8 +386,12 @@ def to_jst_filter(dt):
 # ----------------------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    # 既にログインしている場合はタスク一覧にリダイレクト
+    if current_user.is_authenticated:
+        return redirect("/tasks")
+    
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template("auth/login.html")
 
     # POST：認証処理
     username = request.form.get("username")
@@ -399,7 +405,7 @@ def login():
         return redirect("/tasks")
 
     # 認証失敗
-    return render_template("login.html", error="ユーザー名かパスワードが違います")
+    return render_template("auth/login.html", error="ユーザー名かパスワードが違います")
 
 
 # ----------------------------------------

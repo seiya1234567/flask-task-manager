@@ -1,0 +1,308 @@
+{% extends "layout.html" %}
+
+{% set show_header = True %}
+
+{% block title %}タスク管理システム{% endblock %}
+
+{% block body_class %}bg-gray-50{% endblock %}
+
+{% block content %}
+
+<!-- 統計カード -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div
+        class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-blue-500"
+    >
+        <div class="flex items-center">
+            <div class="bg-blue-100 p-3 rounded-full">
+                <i class="fas fa-list-ul text-blue-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-gray-600 text-sm">総タスク数</p>
+                <p class="text-2xl font-bold text-gray-800">{{ total_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div
+        class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-red-500"
+    >
+        <div class="flex items-center">
+            <div class="bg-red-100 p-3 rounded-full">
+                <i
+                    class="fas fa-exclamation-triangle text-red-600 text-xl"
+                ></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-gray-600 text-sm">高優先度</p>
+                <p class="text-2xl font-bold text-gray-800">{{ high_priority_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div
+        class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-yellow-500"
+    >
+        <div class="flex items-center">
+            <div class="bg-yellow-100 p-3 rounded-full">
+                <i class="fas fa-clock text-yellow-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-gray-600 text-sm">進行中</p>
+                <p class="text-2xl font-bold text-gray-800">{{ in_progress_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div
+        class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-green-500"
+    >
+        <div class="flex items-center">
+            <div class="bg-green-100 p-3 rounded-full">
+                <i
+                    class="fas fa-check-circle text-green-600 text-xl"
+                ></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-gray-600 text-sm">完了</p>
+                <p class="text-2xl font-bold text-gray-800">{{ completed_count }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- フィルターとソート -->
+<div class="bg-white rounded-xl p-6 mb-8 shadow-lg">
+    <div
+        class="flex flex-wrap items-center justify-between gap-4"
+    >
+        <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-filter text-gray-600"></i>
+                <span class="text-gray-700 font-medium">フィルター:</span>
+            </div>
+            <form method="GET">
+            <select
+                name="status" onchange="this.form.submit()"
+                class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+                <option value="" {% if status_filter == "" %}selected{% endif %}>全ての状態</option>
+                <option value="進行中" {% if status_filter == "進行中" %}selected{% endif %}>進行中</option>
+                <option value="完了" {% if status_filter == "完了" %}selected{% endif %}>完了</option>
+                <option value="保留" {% if status_filter == "保留" %}selected{% endif %}>保留</option>
+            </select>
+
+            <select
+                name="priority" onchange="this.form.submit()"
+                class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+                <option value="" {% if priority_filter == "" %}selected{% endif %}>全ての優先度</option>
+                <option value="高" {% if priority_filter == "高" %}selected{% endif %}>高</option>
+                <option value="中" {% if priority_filter == "中" %}selected{% endif %}>中</option>
+                <option value="低" {% if priority_filter == "低" %}selected{% endif %}>低</option>
+            </select>
+            
+        </div>
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-search text-gray-600"></i>
+            <input
+                type="text"
+                name="keyword"
+                placeholder="タスクを検索..."
+                value="{{ keyword or '' }}"
+                class="border border-gray-300 rounded-lg px-4 py-2 w-64 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onkeydown="if(event.key === 'Enter'){ this.form.submit(); }"
+            />
+        </div>
+        </form>
+    </div>
+</div>
+
+<div class="space-y-6">
+    {% for task in tasks %}
+    <div
+        class="task-card bg-white rounded-xl shadow-lg overflow-hidden {{ task.border_color }}"
+    >
+        <div class="p-6">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                    <div class="flex items-center mb-2">
+                        <h3 class="text-xl font-semibold text-gray-800 mr-3">
+                            {{ task.title }}
+                        </h3>
+                        <span
+                            class="priority-{{ task.priority }} px-3 py-1 rounded-full text-xs font-medium"
+                        >
+                            <i class="{{ task.priority_icon }} mr-1"></i
+                            >{{ task.priority_label }}
+                        </span>
+                        <span
+                            class="status-{{ task.status }} px-3 py-1 rounded-full text-xs font-medium ml-2"
+                        >
+                            <i class="{{ task.status_icon }} mr-1"></i
+                            >{{ task.status_label }}
+                        </span>
+                    </div>
+                    <div id="desc-{{ task.id }}" class="hidden text-gray-600 mt-2 mb-4 whitespace-pre-line">
+                    {{ task.description }}
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div class="flex items-center text-gray-600">
+                            <i
+                                class="fas fa-calendar-alt mr-2 text-blue-500"
+                            ></i>
+                            <div>
+                                <span class="font-medium">期限:</span>
+                                <div id="deadline-{{ task.id }}" class="due-date">
+                                    {{ task.due_date }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center text-gray-600">
+                            <i class="fas fa-flag mr-2 text-purple-500"></i>
+                            <div>
+                                <span class="font-medium">優先度:</span>
+                                <div>
+                                    {% if task.priority == '高' %}
+                                        高
+                                    {% elif task.priority == '中' %}
+                                        中
+                                    {% elif task.priority == '低' %}
+                                        低
+                                    {% else %}
+                                        未設定
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center text-gray-600">
+                            <i class="fas fa-info-circle mr-2 text-indigo-500"></i>
+                            <div class="task-status" data-task-id="{{ task.id }}" data-status="{{ task.status }}">
+                                <span class="font-medium">状態:</span>
+                                <div>
+                                    {% if task.status == '進行中' %}
+                                        進行中
+                                    {% elif task.status == '完了' %}
+                                        完了
+                                    {% elif task.status == '保留' %}
+                                        保留
+                                    {% else %}
+                                        未設定
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center text-gray-600">
+                            <i
+                                class="fas fa-plus-circle mr-2 text-green-500"
+                            ></i>
+                            <div>
+                                <span class="font-medium">作成日:</span>
+                                <div>{{ task.created_at|to_jst }}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-gray-600">
+                            <i class="fas fa-edit mr-2 text-orange-500"></i>
+                            <div>
+                                <span class="font-medium">更新日:</span>
+                                <div>{{ task.updated_at|to_jst }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="flex items-center justify-between pt-4 border-t border-gray-100"
+            >
+                <div class="flex items-center space-x-2">
+                    {% for tag in task.tags %}
+                    <span
+                        class="{{ tag.bg }} {{ tag.text }} px-3 py-1 rounded-full text-xs"
+                    >
+                        <i class="{{ tag.icon }} mr-1"></i>{{ tag.name }}
+                    </span>
+                    {% endfor %}
+                </div>
+                <div class="flex space-x-2">
+                    <button
+                        class="action-btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                        data-task-id="{{ task.id }}"
+                        data-action="description"
+                        >
+                        <i class="fas fa-eye mr-1"></i>詳細
+                    </button>
+                    <button
+                        class="action-btn bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                        data-task-id="{{ task.id }}"
+                        data-action="edit"
+                        >
+                        <i class="fas fa-edit mr-1"></i>編集
+                    </button>
+                    <button
+                        class="action-btn bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                        data-task-id="{{ task.id }}"
+                        data-action="delete"
+                        >
+                        <i class="fas fa-trash mr-1"></i>削除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block modals %}
+{{ super() }}
+<!-- タスク削除確認モーダル -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+        <div class="text-center">
+            <div class="text-red-500 text-6xl mb-4">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">タスクを削除しますか？</h3>
+            <p class="text-gray-600 mb-8">この操作は取り消すことができません。<br>本当に削除してもよろしいですか？</p>
+            <div class="flex gap-4 justify-center">
+                <button 
+                    onclick="executeDelete(currentDeleteTaskId)" 
+                    class="delete-btn btn-hover text-white px-6 py-3 rounded-xl font-semibold shadow-lg"
+                >
+                    削除する
+                </button>
+                <button 
+                    onclick="closeDeleteModal()" 
+                    class="cancel-btn btn-hover text-white px-6 py-3 rounded-xl font-semibold shadow-lg"
+                >
+                    キャンセル
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- タスク削除完了モーダル -->
+<div id="deleteSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center">
+        <div class="text-green-500 text-6xl mb-4">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">削除が完了しました</h3>
+        <p class="text-gray-600 mb-8">タスクは正常に削除されました。</p>
+
+        <button 
+            onclick="closeSuccessModal()" 
+            class="px-8 py-3 bg-green-500 text-white rounded-xl font-semibold shadow-lg hover:bg-green-600 transition"
+        >
+            OK
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/tasks.js') }}"></script>
+{% endblock %}

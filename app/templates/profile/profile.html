@@ -1,0 +1,313 @@
+{% extends "layout.html" %}
+
+{% set show_header = True %}
+
+{% block title %}プロフィール編集 - タスク管理システム{% endblock %}
+
+{% block body_class %}bg-gray-50{% endblock %}
+
+{% block extra_head %}
+<script>
+/* グローバルな showModal 定義（ページ先頭に置く） */
+function showModal(category, message) {
+    const modal = document.getElementById('flashModal');
+    const text = document.getElementById('flashModalMessage');
+
+    if (!modal || !text) {
+        console.error('flashModal or flashModalMessage not found');
+        return;
+    }
+
+    text.textContent = message;
+    // 色リセット（毎回）
+    text.style.color = '';
+    if (category === "success") {
+        text.style.color = "green";
+    } else if (category === "error") {
+        text.style.color = "red";
+    }
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+}
+
+/* 便利：モーダルを閉じる関数もグローバルにしておく */
+function hideFlashModal() {
+    const modal = document.getElementById('flashModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+window.showModal = showModal;
+window.hideFlashModal = hideFlashModal;
+</script>
+{% endblock %}
+
+{% block content %}
+    <!-- ページタイトル -->
+    <div class="header-gradient rounded-2xl p-8 mb-8 text-white shadow-xl">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold mb-2">
+                    <i class="fas fa-user-cog mr-3"></i>プロフィール編集
+                </h1>
+                <p class="text-blue-100">アカウント情報を更新できます</p>
+            </div>
+                <div class="hidden md:block">
+                    <div class="bg-white bg-opacity-20 rounded-xl p-4">
+                        <i class="fas fa-user-circle text-4xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 基本情報フォーム -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-10">
+        <div class="p-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+                <i class="fas fa-address-card mr-2 text-blue-600"></i>基本情報
+            </h2>
+
+            <form action="/update_profile" method="POST" id="profileForm" class="space-y-6">
+
+                <!-- ユーザー名 -->
+                <div>
+                    <label class="block text-lg font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-user mr-2 text-blue-600"></i>ユーザー名
+                    </label>
+                    <input type="text" name="username" id="username"
+                        value="{{ user.username }}"
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800"
+                    />
+
+                    {% if errors and errors.username %}
+                    <div class="text-red-600 mt-2">
+                        <i class="fas fa-exclamation-circle mr-1"></i>{{ errors.username }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- メールアドレス -->
+                <div>
+                    <label class="block text-lg font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-envelope mr-2 text-green-600"></i>メールアドレス
+                    </label>
+                    <input type="email" name="email" id="email"
+                        value="{{ user.email }}"
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800"
+                    />
+
+                    {% if errors and errors.email %}
+                    <div class="text-red-600 mt-2">
+                        <i class="fas fa-exclamation-circle mr-1"></i>{{ errors.email }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="pt-6 border-t border-gray-200">
+                    <button type="submit" class="btn-primary px-8 py-3 text-white font-semibold rounded-xl shadow-lg">
+                        <i class="fas fa-save mr-2"></i>変更を保存
+                    </button>
+                        <!-- キャンセルボタン -->
+                    <a href="/tasks"
+                    class="px-8 py-3 bg-gray-300 text-gray-800 font-semibold rounded-xl shadow-lg hover:bg-gray-400 transition">
+                        <i class="fas fa-times mr-2"></i>キャンセル
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- パスワード変更 -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-10">
+        <div class="p-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+                <i class="fas fa-lock mr-2 text-red-600"></i>パスワード変更
+            </h2>
+
+            <form action="/change_password" method="POST" id="passwordForm" name="passwordForm" class="space-y-6">
+
+                <div>
+                    <label class="block text-lg font-semibold mb-2">現在のパスワード</label>
+                    <div class="relative">
+                        <input 
+                            type="password" 
+                            id="current_password" 
+                            name="current_password"
+                            class="form-input w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl"
+                            required
+                            placeholder="現在のパスワードを入力してください"
+                        >
+                        <button
+                            type="button"
+                            id="toggleCurrentPassword"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                        >
+                            <i class="fas fa-eye" id="currentPasswordEyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-lg font-semibold mb-2">新しいパスワード</label>
+                    <div class="relative">
+                        <input 
+                            type="password" 
+                            id="new_password" 
+                            name="new_password"
+                            class="form-input w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl"
+                            required
+                            placeholder="新しいパスワードを入力してください"
+                        >
+                        <button
+                            type="button"
+                            id="toggleNewPassword"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                        >
+                            <i class="fas fa-eye" id="newPasswordEyeIcon"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="passwordError" class="error-message">
+                        <i class="fas fa-exclamation-circle mr-1"></i>パスワードは8文字以上で入力してください
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-lg font-semibold mb-2">新しいパスワード（確認）</label>
+                    <div class="relative">
+                        <input 
+                            type="password" 
+                            id="new_password_confirm" 
+                            name="new_password_confirm"
+                            class="form-input w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl"
+                            required
+                            placeholder="もう一度新しいパスワードを入力してください"
+                        >
+                        <button
+                            type="button"
+                            id="toggleNewPasswordConfirm"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                        >
+                            <i class="fas fa-eye" id="newPasswordConfirmEyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="passwordMismatchError" class="error-message text-red-600 mt-2" style="display:none;">
+                    <i class="fas fa-exclamation-circle mr-1"></i>パスワードと再入力パスワードが一致しません。
+                </div>
+
+                <div class="pt-6 border-t border-gray-200">
+                    <button type="submit" class="px-8 py-3 text-white font-semibold rounded-xl shadow-lg bg-red-600 hover:bg-red-700">
+                        <i class="fas fa-key mr-2"></i>パスワード更新
+                    </button>
+                    <a href="/tasks"
+                    class="px-8 py-3 bg-gray-300 text-gray-800 font-semibold rounded-xl shadow-lg hover:bg-gray-400 transition">
+                        <i class="fas fa-times mr-2"></i>キャンセル
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            {% for category, message in messages %}
+                showModal("{{ category }}", "{{ message }}");
+            {% endfor %}
+        });
+    </script>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Flashメッセージ表示用モーダル -->
+    <div id="flashModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center">
+            <div id="flashModalMessage" class="text-xl font-semibold text-gray-800 mb-6"></div>
+
+            <button 
+                onclick="document.getElementById('flashModal').classList.add('hidden'); 
+                        document.getElementById('flashModal').classList.remove('flex');"
+                class="px-8 py-3 bg-blue-500 text-white rounded-xl font-semibold shadow-lg hover:bg-blue-600 transition"
+            >
+                OK
+            </button>
+        </div>
+    </div>
+
+    <!-- アカウント削除 -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-red-400">
+        <div class="p-8">
+            <h2 class="text-2xl font-semibold text-red-600 mb-4">
+                <i class="fas fa-exclamation-triangle mr-2"></i>アカウント削除
+            </h2>
+
+            <p class="text-gray-700 mb-6">
+                アカウントを削除すると、すべてのタスクデータが消去され復元できません。
+            </p>
+
+            <button 
+                id="accountDeleteBtn"
+                type="button"
+                class="px-8 py-3 font-semibold rounded-xl shadow-lg bg-red-600 hover:bg-red-700 text-white">
+                <i class="fas fa-user-slash mr-2"></i>アカウントを削除する
+            </button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block modals %}
+{{ super() }}
+<!-- アカウント削除確認モーダル -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+        <div class="text-center">
+            <div class="text-red-500 text-6xl mb-4">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">アカウントを削除しますか？</h3>
+            <p class="text-gray-600 mb-8">この操作は取り消すことができません。<br>本当に削除してもよろしいですか？</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="executeAccountDelete()" 
+                    class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold shadow-lg">
+                    削除する
+                </button>
+
+                <button 
+                    onclick="closeDeleteModal()" 
+                    class="cancel-btn btn-hover text-white px-6 py-3 rounded-xl font-semibold shadow-lg"
+                >
+                    キャンセル
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- アカウント削除完了モーダル -->
+<div id="deleteSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center">
+        <div class="text-green-500 text-6xl mb-4">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">削除が完了しました</h3>
+        <p class="text-gray-600 mb-8">アカウントは正常に削除されました。</p>
+
+        <button 
+            onclick="closeSuccessModal()" 
+            class="px-8 py-3 bg-green-500 text-white rounded-xl font-semibold shadow-lg hover:bg-green-600 transition"
+        >
+            OK
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}

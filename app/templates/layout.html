@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title>{% block title %}タスク管理システム{% endblock %}</title>
+
+     <!-- 共通CSS -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+        rel="stylesheet"
+    />
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"
+    />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css') }}">
+
+    {% block extra_head %}
+    {% endblock %}
+
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+    {% if show_header is not defined %}
+        {% set show_header = True %}
+    {% endif %}
+    <!-- ログイン済みページ用ヘッダー -->
+    {% block header %}
+    {% if show_header %}
+    <div class="min-h-screen py-8 px-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- ヘッダー -->
+            <div
+                class="header-gradient rounded-2xl p-8 mb-8 text-white shadow-xl"
+            >
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-4xl font-bold mb-2">
+                            <i class="fas fa-tasks mr-3"></i>タスク管理システム
+                        </h1>
+                    </div>
+                    <div class="flex space-x-4">
+                        <!-- タスク一覧 -->
+                        <button
+                            class="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 shadow-lg btn-hover"
+                            id="tasksBtn"
+                        >
+                            <i class="fas fa-list mr-2"></i>タスク一覧
+                        </button>
+
+                        <!-- 新規タスク -->
+                        <button
+                            class="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 shadow-lg btn-hover"
+                            id="newTaskBtn"
+                        >
+                            <i class="fas fa-plus mr-2"></i>新規タスク作成
+                        </button>
+
+                        <!-- 🔵 プロフィールボタン -->
+                        <button
+                            class="bg-green-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-600 transition-all duration-200 shadow-lg btn-hover"
+                            id="profileBtn"
+                        >
+                            <i class="fas fa-user mr-2"></i>プロフィール
+                        </button>
+
+                        <!-- ログアウト -->
+                        <button
+                            class="bg-red-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-600 transition-all duration-200 shadow-lg btn-hover"
+                            id="logoutBtn"
+                        >
+                            <i class="fas fa-sign-out-alt mr-2"></i>ログアウト
+                        </button>
+                    </div>
+                </div>
+            </div>
+    {% endif %}
+    {% endblock %}
+
+    <!-- ページ固有コンテンツ -->
+    {% block content %}
+
+    {% endblock %}
+
+    {% if show_header %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 共通モーダル：ログアウト確認 -->
+    {% block modals %}
+    {% if show_header %}
+    <!-- ログアウト確認モーダル -->
+    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+            <div class="text-center">
+                <div class="text-blue-500 text-6xl mb-4">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">ログアウトしますか？</h3>
+                <p class="text-gray-600 mb-8">問題なければ「OK」を押してください。</p>
+
+                <div class="flex gap-4 justify-center">
+                    <button 
+                        onclick="executeLogout()" 
+                        class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold shadow-lg"
+                    >
+                        OK
+                    </button>
+                    <button 
+                        onclick="closeConfirmModal()" 
+                        class="px-6 py-3 bg-gray-400 hover:bg-gray-500 text-white rounded-xl font-semibold shadow-lg"
+                    >
+                        キャンセル
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ログアウト完了モーダル -->
+    <div id="logoutSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center">
+            <div class="text-green-500 text-6xl mb-4">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">ログアウトが完了しました</h3>
+            <p class="text-gray-600 mb-8">正常にログアウトされました。</p>
+
+            <button
+                onclick="closeLogOutSuccessModal()"
+                class="px-8 py-3 bg-green-500 text-white rounded-xl font-semibold shadow-lg hover:bg-green-600 transition"
+            >
+                OK
+            </button>
+        </div>
+    </div>
+    {% endif %}
+    {% endblock %}
+
+    <!-- 共通JavaScript -->
+    {% block scripts %}
+    {% if show_header %}
+    <script src="{{ url_for('static', filename='js/layout.js') }}"></script>
+    {% endif %}
+    {% endblock %}
+
+</body>
+</html>

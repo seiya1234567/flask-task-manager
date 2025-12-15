@@ -1,0 +1,205 @@
+{% extends "layout.html" %}
+
+{% set show_header = True %}
+
+{% block title %}タスク新規作成 - タスク管理システム{% endblock %}
+
+{% block body_class %}bg-gray-50{% endblock %}
+
+{% block content %}
+    <!-- ページタイトル -->
+    <div class="header-gradient rounded-2xl p-8 mb-8 text-white shadow-xl">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold mb-2">
+                    <i class="fas fa-plus-circle mr-3"></i>タスク新規作成
+                </h1>
+                <p class="text-blue-100">新しいタスクを作成して、効率的に管理しましょう</p>
+            </div>
+            <div class="hidden md:block">
+                <div class="bg-white bg-opacity-20 rounded-xl p-4">
+                    <i class="fas fa-clipboard-list text-4xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- メインフォーム -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="p-8">
+            <form action="/tasks" method="POST" class="space-y-6">
+                <!-- タイトル -->
+                <div class="form-section">
+                    <label for="title" class="block text-lg font-semibold text-gray-800 mb-3">
+                        <i class="fas fa-heading text-blue-600 mr-2"></i>
+                        タイトル
+                        <span class="required-asterisk ml-1">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        required
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium"
+                        placeholder="タスクのタイトルを入力してください"
+                    />
+                </div>
+
+                <!-- 詳細 -->
+                <div class="form-section">
+                    <label for="description" class="block text-lg font-semibold text-gray-800 mb-3">
+                        <i class="fas fa-align-left text-green-600 mr-2"></i>
+                        詳細
+                    </label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="4"
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 resize-none"
+                        placeholder="タスクの詳細な説明を入力してください（任意）"
+                    ></textarea>
+                </div>
+
+                <!-- 期限日とカテゴリ -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-section">
+                        <label for="due_date" class="block text-lg font-semibold text-gray-800 mb-3">
+                            <i class="fas fa-calendar-alt text-red-600 mr-2"></i>
+                            期限日
+                        </label>
+                        <input
+                            type="date"
+                            id="due_date"
+                            name="due_date"
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                        />
+                    </div>
+
+                    <div class="form-section">
+                        <label for="category" class="block text-lg font-semibold text-gray-800 mb-3">
+                            <i class="fas fa-folder text-purple-600 mr-2"></i>
+                            カテゴリ
+                        </label>
+                        <input
+                            type="text"
+                            id="category"
+                            name="category"
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                            placeholder="例: 仕事、個人、学習"
+                        />
+                    </div>
+                </div>
+
+                <!-- 状態と優先度 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-section">
+                        <label for="status" class="block text-lg font-semibold text-gray-800 mb-3">
+                            <i class="fas fa-tasks text-blue-600 mr-2"></i>
+                            状態
+                        </label>
+                        <select
+                            id="status"
+                            name="status"
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                        >
+                            <option value="">選択してください</option>
+                            <option value="進行中">進行中</option>
+                            <option value="保留">保留</option>
+                            <option value="完了">完了</option>
+                        </select>
+                    </div>
+
+                    <div class="form-section">
+                        <label for="priority" class="block text-lg font-semibold text-gray-800 mb-3">
+                            <i class="fas fa-flag text-orange-600 mr-2"></i>
+                            優先度
+                        </label>
+                        <select
+                            id="priority"
+                            name="priority"
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                        >
+                            <option value="">選択してください</option>
+                            <option value="高">🔴 高</option>
+                            <option value="中">🟡 中</option>
+                            <option value="低">🟢 低</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ボタンエリア -->
+                <div class="pt-8 border-t border-gray-200">
+                    <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                        <a
+                            href="/tasks"
+                            class="btn-secondary inline-flex items-center justify-center px-8 py-3 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg text-center"
+                        >
+                            <i href="/tasks" class="fas fa-times mr-2"></i>
+                            キャンセル
+                        </a>
+                        <button
+                            type="submit"
+                            class="btn-primary inline-flex items-center justify-center px-8 py-3 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg"
+                        >
+                            <i class="fas fa-save mr-2"></i>
+                            タスクを登録
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block modals %}
+{{ super() }}
+<!-- 登録確認モーダル -->
+<div id="registerConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+        <div class="text-center">
+            <div class="text-blue-500 text-6xl mb-4">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">この内容で登録しますか？</h3>
+            <p class="text-gray-600 mb-8">問題なければ「登録する」を押してください。</p>
+            <div class="flex gap-4 justify-center">
+                <button 
+                    onclick="executeRegister()" 
+                    class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold shadow-lg"
+                >
+                    登録する
+                </button>
+                <button 
+                    onclick="closeRegisterConfirmModal()" 
+                    class="cancel-btn btn-hover text-white px-6 py-3 rounded-xl font-semibold shadow-lg"
+                >
+                    キャンセル
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 登録完了モーダル -->
+<div id="registerSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center">
+        <div class="text-green-500 text-6xl mb-4">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">登録が完了しました</h3>
+        <p class="text-gray-600 mb-8">タスクは正常に登録されました。</p>
+
+        <button 
+            onclick="closeSuccessModal()" 
+            class="px-8 py-3 bg-green-500 text-white rounded-xl font-semibold shadow-lg hover:bg-green-600 transition"
+        >
+            OK
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/task-form.js') }}"></script>
+{% endblock %}
