@@ -7,12 +7,9 @@ services:
     container_name: app               # コンテナ名（省略可だが把握しやすい）
     volumes:
       - ./app:/usr/src/app            # ホストのソースコードをマウント（自動反映のため必須）
-    environment:
-      # Flask 2.3 以降は FLASK_ENV は非推奨
-      # 自動リロードを有効化するには FLASK_DEBUG=1 を明示する必要がある
-      FLASK_DEBUG: 1
-    command: flask run --host=0.0.0.0 --debug
-      # --host=0.0.0.0：外部アクセスを許可
+    env_file:
+      - .env.app
+    command: sh -c "${APP_CMD}"
       # --debug：コード変更時の自動リロードやデバッグ情報を有効化
     depends_on:
       - db                            # app 起動前に db を起動させる
@@ -20,10 +17,8 @@ services:
   db:
     image: postgres:latest            # 最新版の PostgreSQL イメージを使用
     container_name: my-postgres       # コンテナ名
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_DB: ${POSTGRES_DB}
+    env_file:
+      - .env.db
     ports:
       - "5432:5432"                   # PostgreSQL のポート公開
     volumes:

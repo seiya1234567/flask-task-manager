@@ -16,7 +16,8 @@ import os
 # データベース接続設定
 # docker-compose.yml の db コンテナを参照
 # ----------------------------------------
-DATABASE_URL = 'postgresql://myuser:mysecretpassword@db:5432/mydatabase'
+#DATABASE_URL = 'postgresql://myuser:mysecretpassword@db:5432/mydatabase'
+DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///default.db')
 
 
 # ----------------------------------------
@@ -45,7 +46,9 @@ app = Flask(__name__)
 
 # セッション暗号化キー
 # デプロイ時は環境変数で設定すべき
-app.secret_key = 'your_secret_key_here_12345'
+SECRET_KEY = os.getenv('SECRET_KEY', 'default_key')
+#app.secret_key = 'your_secret_key_here_12345'
+app.secret_key = SECRET_KEY
 
 # ----------------------------------------
 # SQLAlchemy の設定
