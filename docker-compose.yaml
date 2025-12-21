@@ -10,7 +10,7 @@ services:
     env_file:
       - .env.app
     command: sh -c "${APP_CMD}"
-      # --debug：コード変更時の自動リロードやデバッグ情報を有効化
+    #command: sh -c "sleep infinity"
     depends_on:
       - db                            # app 起動前に db を起動させる
 

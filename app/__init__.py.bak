@@ -1,7 +1,0 @@
-from flask import flask
-from config import config_class
-
-def creat_app():
-    app = Flask(__name__)
-
-    return app
