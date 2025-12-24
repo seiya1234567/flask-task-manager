@@ -1,8 +1,6 @@
 from datetime import datetime,timezone
-from flask_sqlalchemy import SQLAlchemy
+from .extensions import db
 from flask_login import UserMixin
-
-db = SQLAlchemy()
 
 class Task(db.Model):
     __tablename__ = "tasks"
@@ -19,7 +17,7 @@ class Task(db.Model):
 
     user = db.relationship('User', backref='tasks') #UserとBlogPostの間に一対多（one-to-many）のリレーションを設定
 
-class User(db.Model, UserMixin):
+class User(UserMixin, db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
