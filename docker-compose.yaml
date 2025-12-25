@@ -8,7 +8,7 @@ services:
     volumes:
       - ./app:/usr/src/app            # ホストのソースコードをマウント（自動反映のため必須）
     env_file:
-      - .env.app
+      - env/.env.app
     command: sh -c "${APP_CMD}"
     #command: sh -c "sleep infinity"
     depends_on:
@@ -18,7 +18,7 @@ services:
     image: postgres:latest            # 最新版の PostgreSQL イメージを使用
     container_name: my-postgres       # コンテナ名
     env_file:
-      - .env.db
+      - env/.env.db
     ports:
       - "5432:5432"                   # PostgreSQL のポート公開
     volumes:

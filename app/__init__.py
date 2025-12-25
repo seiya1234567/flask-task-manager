@@ -63,4 +63,7 @@ def create_app():
     # main Blueprint をアプリに登録
     app.register_blueprint(main_bp)
 
+    from .auth import auth_bp
+    app.register_blueprint(auth_bp)
+    
     return app
