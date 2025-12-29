@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from zoneinfo import ZoneInfo
 
 # SQLAlchemy のインスタンス
 # ・アプリ本体とは未紐付け
@@ -12,3 +13,13 @@ db = SQLAlchemy()
 # ・アプリ本体とは未紐付け
 # ・create_app() 内で login_manager.init_app(app) により初期化される
 login_manager = LoginManager()
+
+# ----------------------------------------
+# JST（日本時間）フォーマットのフィルタ
+# テンプレート内で |to_jst のように使用
+# ----------------------------------------
+def to_jst_filter(dt):
+    if dt is None:
+        return ''
+    jst = dt.astimezone(ZoneInfo("Asia/Tokyo"))
+    return jst.strftime("%Y-%m-%d %H:%M")

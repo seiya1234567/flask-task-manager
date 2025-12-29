@@ -1,6 +1,6 @@
 from flask import Flask
 from .config import BaseConfig
-from .extensions import db, login_manager
+from .extensions import db, login_manager, to_jst_filter
 
 
 def create_app():
@@ -54,16 +54,22 @@ def create_app():
     def load_user(user_id):
         return User.query.get(user_id)
 
+    # jinja filter 登録
+    app.jinja_env.filters["to_jst"] = to_jst_filter
+
     # --------------------------------------------------
     # Blueprint の登録
     # --------------------------------------------------
     # 循環 import を避けるため遅延 import
     from .main import main_bp
 
-    # main Blueprint をアプリに登録
+    # Blueprint をアプリに登録
     app.register_blueprint(main_bp)
 
     from .auth import auth_bp
     app.register_blueprint(auth_bp)
-    
+
+    from .tasks import tasks_bp
+    app.register_blueprint(tasks_bp)
+
     return app

@@ -1,4 +1,4 @@
-from flask import render_template, redirect, request
+from flask import render_template, redirect, request, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 #from .forms import LoginForm
@@ -26,12 +26,10 @@ def login():
 
     if user and check_password_hash(user.password_hash, password):
         login_user(user, remember=remember_me)
-        return "OK"
-        return redirect("/tasks")
+        return redirect(url_for("tasks.index"))
 
     # 認証失敗
     return render_template("auth/login.html", error="ユーザー名かパスワードが違います")
-
 
 # ----------------------------------------
 # ログアウト処理
@@ -40,5 +38,4 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect("/")
-
+    return redirect(url_for("main.index"))
