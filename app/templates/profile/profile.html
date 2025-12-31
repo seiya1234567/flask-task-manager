@@ -11,11 +11,12 @@
 /* グローバルな showModal 定義（ページ先頭に置く） */
 function showModal(category, message) {
     const modal = document.getElementById('flashModal');
-    const icon = document.getElementById('flashModalIcon');
+    const iconContainer = document.getElementById('flashModalIcon');
+    const icon = document.getElementById('flashModalIconI');
     const text = document.getElementById('flashModalMessage');
     const button = document.getElementById('flashModalButton');
 
-    if (!modal || !icon || !text || !button) {
+    if (!modal || !iconContainer || !icon || !text || !button) {
         console.error('flashModal elements not found');
         return;
     }
@@ -25,16 +26,16 @@ function showModal(category, message) {
     // 成功時（緑）
     if (category === "success") {
         icon.className = "fas fa-check-circle";
-        icon.classList.remove("text-red-500");
-        icon.classList.add("text-green-500");
+        iconContainer.classList.remove("text-red-500");
+        iconContainer.classList.add("text-green-500");
         button.classList.remove("bg-red-500", "hover:bg-red-600");
         button.classList.add("bg-green-500", "hover:bg-green-600");
     } 
     // エラー時（赤）
     else if (category === "error") {
         icon.className = "fas fa-times-circle";
-        icon.classList.remove("text-green-500");
-        icon.classList.add("text-red-500");
+        iconContainer.classList.remove("text-green-500");
+        iconContainer.classList.add("text-red-500");
         button.classList.remove("bg-green-500", "hover:bg-green-600");
         button.classList.add("bg-red-500", "hover:bg-red-600");
     }
@@ -240,7 +241,7 @@ window.hideFlashModal = hideFlashModal;
     <div id="flashModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center">
             <div id="flashModalIcon" class="text-green-500 text-6xl mb-4">
-                <i class="fas fa-check-circle"></i>
+                <i id="flashModalIconI" class="fas fa-check-circle"></i>
             </div>
             <div id="flashModalMessage" class="text-xl font-semibold text-gray-800 mb-8"></div>
 
