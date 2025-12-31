@@ -59,11 +59,10 @@ def create_app():
 
     # --------------------------------------------------
     # Blueprint の登録
-    # --------------------------------------------------
     # 循環 import を避けるため遅延 import
-    from .main import main_bp
+    # --------------------------------------------------
 
-    # Blueprint をアプリに登録
+    from .main import main_bp
     app.register_blueprint(main_bp)
 
     from .auth import auth_bp
@@ -72,4 +71,7 @@ def create_app():
     from .tasks import tasks_bp
     app.register_blueprint(tasks_bp)
 
+    from .profile import profile_bp
+    app.register_blueprint(profile_bp)
+    
     return app

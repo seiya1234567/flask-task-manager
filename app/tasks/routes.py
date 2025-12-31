@@ -1,12 +1,9 @@
 from flask import render_template, redirect, request, url_for
-from flask_login import login_user, logout_user, login_required, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import login_required, current_user
 from datetime import datetime
-#from .forms import LoginForm
 from . import tasks_bp
 from app.models import Task
 from app.extensions import db
-
 
 @tasks_bp.route("/tasks", methods=["GET", "POST"])
 @login_required
@@ -77,8 +74,7 @@ def index():
         db.session.add(new_task)
         db.session.commit()
 
-        return redirect("/tasks")
-
+        return redirect(url_for("tasks.index"))
 
 # ----------------------------------------
 # タスク削除
@@ -94,7 +90,6 @@ def delete_task(id):
         return f'Task {id} deleted', 200
     else:
         return 'Task not found', 404
-
 
 # ----------------------------------------
 # 新規作成フォーム表示
@@ -141,4 +136,4 @@ def apply(id):
 
     db.session.commit()
 
-    return redirect("/tasks")
+    return redirect(url_for("tasks.index"))

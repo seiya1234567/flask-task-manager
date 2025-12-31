@@ -9,6 +9,7 @@
 {% block content %}
 <div class="min-h-screen py-8 px-4">
     <div class="max-w-4xl mx-auto">
+
         <!-- ヘッダー -->
         <div class="header-gradient rounded-2xl p-8 mb-8 text-white shadow-xl">
             <div class="flex items-center justify-between">
@@ -29,7 +30,25 @@
         <!-- メインフォーム -->
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div class="p-8">
-                <form id = "registerForm" action="/register" method="POST" class="space-y-6">
+
+                {# ===== flash メッセージ取得 ===== #}
+                {% set ns = namespace(username_error=None, email_error=None) %}
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% set username_error = None %}
+                    {% set email_error = None %}
+
+                    {% for category, message in messages %}
+                        {% if category == "username_error" %}
+                            {% set ns.username_error = message %}
+                        {% elif category == "email_error" %}
+                            {% set ns.email_error = message %}
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+
+                <form id="registerForm" action="/register" method="POST" class="space-y-6">
+
                     <!-- ユーザー名 -->
                     <div class="form-section">
                         <label for="username" class="block text-lg font-semibold text-gray-800 mb-3">
@@ -42,15 +61,18 @@
                             id="username"
                             name="username"
                             required
-                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium"
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl
+                                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                   text-gray-800 font-medium"
                             placeholder="ユーザー名を入力してください"
                         />
-                        {% if errors and errors.username %}
-                            <div class="text-red-600 mb-4" style="display: block;">
+                        {% if ns.username_error %}
+                            <div class="text-red-600 mt-2">
                                 <i class="fas fa-exclamation-circle mr-1"></i>
-                                {{ errors.username }}
+                                {{ ns.username_error }}
                             </div>
                         {% endif %}
+
                     </div>
 
                     <!-- メールアドレス -->
@@ -65,13 +87,15 @@
                             id="email"
                             name="email"
                             required
-                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800 font-medium"
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl
+                                   focus:ring-2 focus:ring-green-500 focus:border-transparent
+                                   text-gray-800 font-medium"
                             placeholder="メールアドレスを入力してください"
                         />
-                        {% if errors and errors.email %}
-                            <div class="text-red-600 mb-4" style="display: block;">
+                        {% if ns.email_error %}
+                            <div class="text-red-600 mt-2">
                                 <i class="fas fa-exclamation-circle mr-1"></i>
-                                {{ errors.email}}
+                                {{ ns.email_error }}
                             </div>
                         {% endif %}
                     </div>
@@ -89,18 +113,22 @@
                                 id="password"
                                 name="password"
                                 required
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-800 font-medium"
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl
+                                       focus:ring-2 focus:ring-red-500 focus:border-transparent
+                                       text-gray-800 font-medium"
                                 placeholder="パスワードを入力してください"
                             />
                             <button
                                 type="button"
                                 id="togglePasswordMain"
-                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200 z-10"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center
+                                       text-gray-400 hover:text-gray-600 transition-colors z-10"
                             >
                                 <i class="fas fa-eye" id="eyeIconMain"></i>
                             </button>
                             <div id="passwordError" class="error-message">
-                            <i class="fas fa-exclamation-circle mr-1"></i>パスワードは8文字以上で入力してください
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                パスワードは8文字以上で入力してください
                             </div>
                         </div>
                     </div>
@@ -118,34 +146,40 @@
                                 id="password_confirm"
                                 name="password_confirm"
                                 required
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent text-gray-800 font-medium"
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl
+                                       focus:ring-2 focus:ring-red-400 focus:border-transparent
+                                       text-gray-800 font-medium"
                                 placeholder="もう一度パスワードを入力してください"
                             />
                             <button
-                                    type="button"
-                                    id="togglePasswordConfirm"
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200 z-10"
-                                >
-                                    <i class="fas fa-eye" id="eyeIconConfirm"></i>
+                                type="button"
+                                id="togglePasswordConfirm"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center
+                                       text-gray-400 hover:text-gray-600 transition-colors z-10"
+                            >
+                                <i class="fas fa-eye" id="eyeIconConfirm"></i>
                             </button>
                         </div>
                         <div id="passwordMismatchError" class="error-message text-red-600 mt-2" style="display:none;">
-                            <i class="fas fa-exclamation-circle mr-1"></i>パスワードと再入力パスワードが一致しません。
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            パスワードと再入力パスワードが一致しません。
                         </div>
                     </div>
 
-                    <!-- ボタンエリア -->
+                    <!-- ボタン -->
                     <div class="pt-8 border-t border-gray-200">
-                        <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                        <div class="flex justify-end">
                             <button
                                 type="submit"
-                                class="btn-primary inline-flex items-center justify-center px-8 py-3 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg"
+                                class="btn-primary inline-flex items-center px-8 py-3
+                                       text-white font-semibold rounded-xl shadow-lg"
                             >
                                 <i class="fas fa-user-plus mr-2"></i>
                                 確認にすすむ
                             </button>
                         </div>
                     </div>
+
                 </form>
             </div>
         </div>
