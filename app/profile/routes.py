@@ -3,8 +3,7 @@ from flask import render_template, redirect, request, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import logout_user, login_required, current_user
 from app.extensions import db
-from app.models import User
-
+from .validator import validate_profile, validate_password_change
 # ----------------------------------------
 # プロフィールページ
 # ----------------------------------------
@@ -20,23 +19,23 @@ def index():
 @profile_bp.route('/update_profile', methods=["POST"])
 @login_required
 def update_profile():
-    user=current_user
+
     new_username = request.form.get("username")
     new_email = request.form.get("email")
 
-    existing_username = User.query.filter(User.username == new_username, User.id != user.id).first()
-    existing_email = User.query.filter(User.email == new_email, User.id != user.id).first()
+    errors = validate_profile(
+        username = new_username,
+        email=new_email,
+        user_id = current_user.id
+    )
 
-    if existing_username:
-        flash("ユーザー名はすでに使われています", "error")
-        return render_template("profile/profile.html", user=current_user)
+    if errors:
+        for msg in errors.values():
+            flash(msg, "error")
+        return render_template("profile/profile.html", errors=errors)
     
-    if existing_email:
-        flash("メールアドレスはすでに使われています", "error")
-        return render_template("profile/profile.html", user=current_user)
-
-    user.username = new_username
-    user.email = new_email
+    current_user.username = new_username
+    current_user.email = new_email
 
     db.session.commit()
 
@@ -49,18 +48,25 @@ def update_profile():
 @profile_bp.route('/change_password', methods=["POST"])
 @login_required
 def change_password():
+    current_password=request.form.get("current_password")
+    new_password=request.form.get("new_password")
+    confirm_password=request.form.get("new_password_confirm")
+
     # POST：認証処理
-    user = current_user 
-    current_password = request.form.get("current_password")
-    new_password = request.form.get("new_password")
+    errors = validate_password_change(
+        current_password=current_password,
+        new_password=new_password,
+        confirm_password=confirm_password,
+        user = current_user
+    )
     
-    # 現在のパスワード照合
-    if not check_password_hash(user.password_hash, current_password):
-        flash("パスワードが違います", "error")
-        return render_template("profile/profile.html", user=current_user)
-        
+    if errors:
+        for msg in errors.values():
+            flash(msg, "error")
+        return render_template("profile/profile.html", user=current_user, errors=errors)
+             
     # パスワード更新
-    user.password_hash = generate_password_hash(new_password)
+    current_user.password_hash = generate_password_hash(new_password)
     db.session.commit()
 
     flash("パスワードの更新が完了しました", "success")

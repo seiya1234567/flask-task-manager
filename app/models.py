@@ -1,6 +1,7 @@
 from datetime import datetime,timezone
 from .extensions import db
 from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class Task(db.Model):
     __tablename__ = "tasks"
@@ -15,7 +16,8 @@ class Task(db.Model):
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc).replace(microsecond=0), onupdate=lambda: datetime.now(timezone.utc).replace(microsecond=0))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    user = db.relationship('User', backref='tasks') #UserとBlogPostの間に一対多（one-to-many）のリレーションを設定
+    #UserとBlogPostの間に一対多（one-to-many）のリレーションを設定
+    user = db.relationship('User', backref='tasks')
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -24,3 +26,9 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(512), nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc).replace(microsecond=0))
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
