@@ -42,6 +42,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return pwd.length >= 8;
     }
 
+    // ユーザー名バリデーション関数
+    function validateUsername(username) {
+        return username.length >= 1 && username.length <= 50;
+    }
+
     // エラー表示切替
     function showError(fieldId, show = true) {
         const errorElement = document.getElementById(fieldId + 'Error');
@@ -50,48 +55,139 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // リアルタイムでパスワード長チェック
-    if (password) {
-        password.addEventListener('input', function() {
-            if (!validatePassword(password.value)) {
-                showError('password', true);
+    // ユーザー名のリアルタイムチェック
+    const usernameInput = document.getElementById('username');
+    if (usernameInput) {
+        usernameInput.addEventListener('input', function() {
+            const valid = validateUsername(usernameInput.value);
+            if (!valid && usernameInput.value.trim() !== '') {
+                usernameInput.classList.add('border-red-500');
+                usernameInput.classList.remove('border-gray-300');
+                showError('username', true);
             } else {
-                showError('password', false);
+                usernameInput.classList.remove('border-red-500');
+                usernameInput.classList.add('border-gray-300');
+                showError('username', false);
             }
         });
     }
 
-    // メールアドレスリアルタイムチェック（blur時）
+    // メールアドレスリアルタイムチェック
     const emailInput = document.getElementById('email');
     if (emailInput) {
-        emailInput.addEventListener('blur', function() {
+        emailInput.addEventListener('input', function() {
             const valid = validateEmail(emailInput.value);
-            if (!valid && emailInput.value !== '') {
+            if (!valid && emailInput.value.trim() !== '') {
                 emailInput.classList.add('border-red-500');
                 emailInput.classList.remove('border-gray-300');
+                showError('email', true);
             } else {
                 emailInput.classList.remove('border-red-500');
                 emailInput.classList.add('border-gray-300');
+                showError('email', false);
             }
-            showError('email', !valid && emailInput.value !== '');
+        });
+    }
+
+    // リアルタイムでパスワード長チェック
+    if (password) {
+        password.addEventListener('input', function() {
+            const valid = validatePassword(password.value);
+            if (!valid && password.value.trim() !== '') {
+                password.classList.add('border-red-500');
+                password.classList.remove('border-gray-300');
+                showError('password', true);
+            } else {
+                password.classList.remove('border-red-500');
+                password.classList.add('border-gray-300');
+                showError('password', false);
+            }
+            // パスワード一致チェックも実行
+            checkPasswordMatch();
+        });
+    }
+
+    // パスワード一致チェック（リアルタイム）
+    function checkPasswordMatch() {
+        if (!password || !passwordConfirm) return;
+        
+        const pwd = password.value;
+        const pwdConfirm = passwordConfirm.value;
+        const mismatchError = document.getElementById('passwordMismatchError');
+        
+        if (pwdConfirm.trim() === '') {
+            if (mismatchError) {
+                mismatchError.style.display = 'none';
+            }
+            passwordConfirm.classList.remove('border-red-500');
+            passwordConfirm.classList.add('border-gray-300');
+            return;
+        }
+        
+        if (pwd !== pwdConfirm) {
+            if (mismatchError) {
+                mismatchError.style.display = 'block';
+            }
+            passwordConfirm.classList.add('border-red-500');
+            passwordConfirm.classList.remove('border-gray-300');
+        } else {
+            if (mismatchError) {
+                mismatchError.style.display = 'none';
+            }
+            passwordConfirm.classList.remove('border-red-500');
+            passwordConfirm.classList.add('border-gray-300');
+        }
+    }
+
+    if (passwordConfirm) {
+        passwordConfirm.addEventListener('input', function() {
+            checkPasswordMatch();
         });
     }
 
     // フォーム送信時バリデーション
     if (registerForm) {
         registerForm.addEventListener('submit', function(e) {
+            const username = usernameInput ? usernameInput.value : '';
             const email = emailInput ? emailInput.value : '';
             const pwd = password ? password.value : '';
             const pwdConfirm = passwordConfirm ? passwordConfirm.value : '';
             const mismatchError = document.getElementById('passwordMismatchError');
 
+            const usernameValid = validateUsername(username);
             const emailValid = validateEmail(email);
             const passwordValid = validatePassword(pwd);
 
+            showError('username', !usernameValid);
             showError('email', !emailValid);
             showError('password', !passwordValid);
 
-            if (!emailValid || !passwordValid) {
+            if (!usernameValid) {
+                if (usernameInput) {
+                    usernameInput.classList.add('border-red-500');
+                    usernameInput.classList.remove('border-gray-300');
+                    usernameInput.focus();
+                }
+                e.preventDefault();
+                return;
+            }
+
+            if (!emailValid) {
+                if (emailInput) {
+                    emailInput.classList.add('border-red-500');
+                    emailInput.classList.remove('border-gray-300');
+                    emailInput.focus();
+                }
+                e.preventDefault();
+                return;
+            }
+
+            if (!passwordValid) {
+                if (password) {
+                    password.classList.add('border-red-500');
+                    password.classList.remove('border-gray-300');
+                    password.focus();
+                }
                 e.preventDefault();
                 return;
             }
@@ -99,9 +195,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (pwd !== pwdConfirm) {
                 e.preventDefault();
                 if (mismatchError) {
-                    mismatchError.style.display = 'block'; // エラー表示
+                    mismatchError.style.display = 'block';
                 }
                 if (passwordConfirm) {
+                    passwordConfirm.classList.add('border-red-500');
+                    passwordConfirm.classList.remove('border-gray-300');
                     passwordConfirm.focus();
                 }
                 return;

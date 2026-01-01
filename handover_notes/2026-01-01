@@ -21,32 +21,31 @@
 ---
 
 ## 本日の対応内容
-- profile Blueprint 実装完了
-  - profile ページ（モーダル UI）の調整
-  - ユーザー名 / email 変更処理を実装
-  - パスワード変更処理を実装
-  - 各処理に対する validation を実装
-    - 既存ユーザーとの重複チェック
-    - 現在パスワード確認
-    - 新規パスワード文字数チェック
-    - 新規パスワード一致確認
-
-- Jinja2 / flash の運用整理
-  - validation エラーは flash を用いて画面表示
-  - Jinja2 側では表示制御に専念させる設計を維持
-
+- auth Blueprint の validation 実装
+  - 新規登録時の入力値チェックを実装
+    - ユーザー名 / email の必須チェック・重複チェック
+    - パスワード / 確認用パスワードの必須チェック
+  - flash を用いてエラー表示
+  - confirm ルートを廃止し、register ルート内で validation → DB登録 → 完了モーダル のフローに統一
+- 既存 register フローの整理
+  - POST /register で validation → DB登録 → 完了通知モーダル
+  - 不正 POST 時は flash エラー → 登録画面へリダイレクト
+- profile Blueprint 実装済み
+  - ユーザー名 / email 変更処理
+  - パスワード変更処理
+  - validation エラー表示確認
 - Blueprint / Application Factory 構成の再確認
-  - profile Blueprint を含めた全 Blueprint の登録を確認
-  - extensions.py は定義のみとし、循環 import が発生しない構造を維持
-  - DB 操作は extensions から db を import する方針を再確認
+  - 全 Blueprint の登録確認
+  - extensions.py は定義のみ、循環 import 回避
+  - DB 操作は extensions から db を import する方針を維持
 
 ---
 
 ## 実装済み / 確認済み事項
 - auth Blueprint
   - ログイン成功 / 失敗時の処理
-  - ログアウト処理の正常動作
-  - 新規ユーザー登録フローの動作確認
+  - ログアウト処理
+  - 新規ユーザー登録フロー（confirm 画面なし）での正常動作確認
 - tasks Blueprint
   - タスク一覧表示
   - フィルタ処理
@@ -64,11 +63,8 @@
 
 ## 未対応 / 次にやること
 - auth Blueprint の整理
-  - 新規登録時 validation の強化
-  - confirm ルート側での再 validation（直接 POST 対策）
-- validation の最終整理
-  - メッセージ形式の統一
-  - エラー key / value 設計の整理
+  - 新規登録時 validation の最終調整
+  - flash メッセージ形式の統一
 - WTForms 導入有無の最終判断
 - Flask-Mail 導入
 - MailHog を用いたメール送信・受信確認
@@ -94,7 +90,7 @@ git branch
 
 ### コミット & Push
 git add .
-git commit -m "feat: complete profile blueprint with validation"
+git commit -m "feat: implement auth validation and consolidate register flow"
 git push origin feature/flask-blueprint-refactor
 
 ---
@@ -105,3 +101,4 @@ git push origin feature/flask-blueprint-refactor
 - 作業途中のコードは必ず feature ブランチで管理
 - Blueprint は 1 箇所で生成し、import は役割を分ける
 - 起動経路は wsgi.py に集約済み
+- confirm 画面は廃止し、register ルート内で完結するフローを採用

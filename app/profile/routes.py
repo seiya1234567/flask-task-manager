@@ -32,7 +32,7 @@ def update_profile():
     if errors:
         for msg in errors.values():
             flash(msg, "error")
-        return render_template("profile/profile.html", errors=errors)
+        return render_template("profile/profile.html",  user=current_user, errors=errors)
     
     current_user.username = new_username
     current_user.email = new_email

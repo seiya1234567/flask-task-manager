@@ -11,6 +11,36 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // バリデーション関数
+    function validateTitle(title) {
+        return title.length >= 1 && title.length <= 200;
+    }
+
+    // エラー表示切替関数
+    function showError(fieldId, show = true) {
+        const errorElement = document.getElementById(fieldId + 'Error');
+        if (errorElement) {
+            errorElement.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    // タイトル入力時のリアルタイムバリデーション
+    const titleInput = document.getElementById('title');
+    if (titleInput) {
+        titleInput.addEventListener('input', function() {
+            const valid = validateTitle(titleInput.value);
+            if (!valid && titleInput.value.trim() !== '') {
+                titleInput.classList.add('border-red-500');
+                titleInput.classList.remove('border-gray-300');
+                showError('title', true);
+            } else {
+                titleInput.classList.remove('border-red-500');
+                titleInput.classList.add('border-gray-300');
+                showError('title', false);
+            }
+        });
+    }
+
     // フォーム送信時の確認
     function openRegisterConfirmModal() {
         const modal = document.getElementById('registerConfirmModal');
@@ -23,20 +53,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', function(e) {
+            // バリデーションチェック
+            if (titleInput && !validateTitle(titleInput.value)) {
+                e.preventDefault();
+                titleInput.classList.add('border-red-500');
+                titleInput.classList.remove('border-gray-300');
+                showError('title', true);
+                titleInput.focus();
+                return;
+            }
+            
             e.preventDefault(); // フォーム送信停止
             openRegisterConfirmModal(); // モーダルを表示
-        });
-    }
-
-    // タイトル入力時のリアルタイムバリデーション
-    const titleInput = document.getElementById('title');
-    if (titleInput) {
-        titleInput.addEventListener('input', function() {
-            if (this.value.trim().length > 0) {
-                this.style.borderColor = '#10b981';
-            } else {
-                this.style.borderColor = '#d1d5db';
-            }
         });
     }
 });

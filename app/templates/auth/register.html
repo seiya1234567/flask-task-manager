@@ -6,6 +6,68 @@
 
 {% block body_class %}bg-gray-50{% endblock %}
 
+{% block extra_head %}
+<script>
+/* グローバルな showModal 定義（ページ先頭に置く） */
+function showModal(category, message) {
+    const modal = document.getElementById('flashModal');
+    const iconContainer = document.getElementById('flashModalIcon');
+    const icon = document.getElementById('flashModalIconI');
+    const text = document.getElementById('flashModalMessage');
+    const button = document.getElementById('flashModalButton');
+
+    if (!modal || !iconContainer || !icon || !text || !button) {
+        console.error('flashModal elements not found');
+        return;
+    }
+
+    text.textContent = message;
+    
+    // 成功時（緑）
+    if (category === "success") {
+        icon.className = "fas fa-check-circle";
+        iconContainer.classList.remove("text-red-500");
+        iconContainer.classList.add("text-green-500");
+        button.classList.remove("bg-red-500", "hover:bg-red-600");
+        button.classList.add("bg-green-500", "hover:bg-green-600");
+        // 成功時はログイン画面に遷移するようにボタンのonclickを設定
+        button.setAttribute('onclick', 'closeRegisterSuccessModal()');
+    } 
+    // エラー時（赤）
+    else if (category === "error") {
+        icon.className = "fas fa-times-circle";
+        iconContainer.classList.remove("text-green-500");
+        iconContainer.classList.add("text-red-500");
+        button.classList.remove("bg-green-500", "hover:bg-green-600");
+        button.classList.add("bg-red-500", "hover:bg-red-600");
+        // エラー時はモーダルを閉じるだけ
+        button.setAttribute('onclick', 'hideFlashModal()');
+    }
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+}
+
+/* 便利：モーダルを閉じる関数もグローバルにしておく */
+function hideFlashModal() {
+    const modal = document.getElementById('flashModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+// 登録成功時のモーダルを閉じてログイン画面へ
+function closeRegisterSuccessModal() {
+    hideFlashModal();
+    location.href = '/login';
+}
+
+window.showModal = showModal;
+window.hideFlashModal = hideFlashModal;
+window.closeRegisterSuccessModal = closeRegisterSuccessModal;
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="min-h-screen py-8 px-4">
     <div class="max-w-4xl mx-auto">
@@ -32,17 +94,30 @@
             <div class="p-8">
 
                 {# ===== flash メッセージ取得 ===== #}
-                {% set ns = namespace(username_error=None, email_error=None) %}
+                {% set ns = namespace(
+                    username_error=None,
+                    email_error=None,
+                    password_error=None,
+                    password_confirm_error=None
+                ) %}
+
 
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% set username_error = None %}
                     {% set email_error = None %}
+                    {% set password_error = None %}
+                    {% set password_confirm_error = None %}
 
                     {% for category, message in messages %}
                         {% if category == "username_error" %}
                             {% set ns.username_error = message %}
                         {% elif category == "email_error" %}
                             {% set ns.email_error = message %}
+                        {% elif category == "password_error" %}
+                            {% set ns.password_error = message %}
+                        {% elif category == "password_confirm_error" %}
+                            {% set ns.password_confirm_error = message %}
+
                         {% endif %}
                     {% endfor %}
                 {% endwith %}
@@ -66,13 +141,15 @@
                                    text-gray-800 font-medium"
                             placeholder="ユーザー名を入力してください"
                         />
+                        <div id="usernameError" class="text-red-600 mt-2" style="display:none;">
+                            <i class="fas fa-exclamation-circle mr-1"></i>ユーザー名は1文字以上50文字以内で入力してください
+                        </div>
                         {% if ns.username_error %}
                             <div class="text-red-600 mt-2">
                                 <i class="fas fa-exclamation-circle mr-1"></i>
                                 {{ ns.username_error }}
                             </div>
                         {% endif %}
-
                     </div>
 
                     <!-- メールアドレス -->
@@ -92,6 +169,9 @@
                                    text-gray-800 font-medium"
                             placeholder="メールアドレスを入力してください"
                         />
+                        <div id="emailError" class="text-red-600 mt-2" style="display:none;">
+                            <i class="fas fa-exclamation-circle mr-1"></i>正しいメールアドレスを入力してください
+                        </div>
                         {% if ns.email_error %}
                             <div class="text-red-600 mt-2">
                                 <i class="fas fa-exclamation-circle mr-1"></i>
@@ -126,11 +206,16 @@
                             >
                                 <i class="fas fa-eye" id="eyeIconMain"></i>
                             </button>
-                            <div id="passwordError" class="error-message">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
-                                パスワードは8文字以上で入力してください
-                            </div>
                         </div>
+                        <div id="passwordError" class="text-red-600 mt-2" style="display:none;">
+                            <i class="fas fa-exclamation-circle mr-1"></i>パスワードは8文字以上で入力してください
+                        </div>
+                        {% if ns.password_error %}
+                            <div class="text-red-600 mt-2">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ ns.password_error }}
+                            </div>
+                        {% endif %}
                     </div>
 
                     <!-- パスワード再入力 -->
@@ -160,10 +245,15 @@
                                 <i class="fas fa-eye" id="eyeIconConfirm"></i>
                             </button>
                         </div>
-                        <div id="passwordMismatchError" class="error-message text-red-600 mt-2" style="display:none;">
-                            <i class="fas fa-exclamation-circle mr-1"></i>
-                            パスワードと再入力パスワードが一致しません。
+                        <div id="passwordMismatchError" class="text-red-600 mt-2" style="display:none;">
+                            <i class="fas fa-exclamation-circle mr-1"></i>パスワードと再入力パスワードが一致しません
                         </div>
+                        {% if ns.password_confirm_error %}
+                            <div class="text-red-600 mt-2">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ ns.password_confirm_error }}
+                            </div>
+                        {% endif %}
                     </div>
 
                     <!-- ボタン -->
@@ -185,6 +275,38 @@
         </div>
     </div>
 </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            {% for category, message in messages %}
+                {% if category == "success" or category == "error" %}
+                showModal("{{ category }}", "{{ message }}");
+                {% endif %}
+            {% endfor %}
+        });
+    </script>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Flashメッセージ表示用モーダル -->
+    <div id="flashModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl text-center">
+            <div id="flashModalIcon" class="text-green-500 text-6xl mb-4">
+                <i id="flashModalIconI" class="fas fa-check-circle"></i>
+            </div>
+            <div id="flashModalMessage" class="text-xl font-semibold text-gray-800 mb-8"></div>
+
+            <button 
+                id="flashModalButton"
+                onclick="hideFlashModal()"
+                class="px-8 py-3 bg-green-500 text-white rounded-xl font-semibold shadow-lg hover:bg-green-600 transition"
+            >
+                OK
+            </button>
+        </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}
