@@ -106,15 +106,60 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (newPassword) {
         newPassword.addEventListener('input', function () {
-            if (!validatePassword(newPassword.value)) {
+            const valid = validatePassword(newPassword.value);
+            if (!valid && newPassword.value.trim() !== '') {
                 if (passwordError) {
                     passwordError.style.display = "block";
                 }
+                newPassword.classList.add('border-red-500');
+                newPassword.classList.remove('border-gray-300');
             } else {
                 if (passwordError) {
                     passwordError.style.display = "none";
                 }
+                newPassword.classList.remove('border-red-500');
+                newPassword.classList.add('border-gray-300');
             }
+            // パスワード一致チェックも実行
+            checkPasswordMatch();
+        });
+    }
+
+    // パスワード一致チェック（リアルタイム）
+    function checkPasswordMatch() {
+        if (!newPassword || !newPasswordConfirm) return;
+        
+        const pwd = newPassword.value;
+        const pwdConfirm = newPasswordConfirm.value;
+        const mismatchError = document.getElementById('passwordMismatchError');
+        
+        if (pwdConfirm.trim() === '') {
+            if (mismatchError) {
+                mismatchError.style.display = 'none';
+            }
+            newPasswordConfirm.classList.remove('border-red-500');
+            newPasswordConfirm.classList.add('border-gray-300');
+            return;
+        }
+        
+        if (pwd !== pwdConfirm) {
+            if (mismatchError) {
+                mismatchError.style.display = 'block';
+            }
+            newPasswordConfirm.classList.add('border-red-500');
+            newPasswordConfirm.classList.remove('border-gray-300');
+        } else {
+            if (mismatchError) {
+                mismatchError.style.display = 'none';
+            }
+            newPasswordConfirm.classList.remove('border-red-500');
+            newPasswordConfirm.classList.add('border-gray-300');
+        }
+    }
+
+    if (newPasswordConfirm) {
+        newPasswordConfirm.addEventListener('input', function() {
+            checkPasswordMatch();
         });
     }
 

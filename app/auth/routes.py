@@ -7,6 +7,28 @@ from app.models import User
 from app.extensions import db
 from .validator import validate_register
 
+# --------------------------------
+# Validation Error Messages
+# --------------------------------
+ERROR_MESSAGES = {
+    "username": {
+        "required": "ユーザー名は必須です",
+        "duplicate": "ユーザー名はすでに使われています",
+    },
+    "email": {
+        "required": "メールアドレスは必須です",
+        "duplicate": "メールアドレスはすでに使われています",
+    },
+    "password": {
+        "required": "パスワードは必須です",
+        "too_short": "パスワードは8文字以上にしてください",
+    },
+    "password_confirm": {
+        "required": "確認用のパスワードは必須です",
+        "mismatch": "パスワードが一致しません",
+    },
+}
+
 # ----------------------------------------
 # ログイン処理
 # ----------------------------------------
@@ -64,7 +86,8 @@ def register():
     )
 
     if errors:
-        for field, msg in errors.items():
+        for field, key in errors.items():
+            msg = ERROR_MESSAGES[field][key]
             flash(msg, f"{field}_error")
         return redirect(url_for("auth.register"))
 

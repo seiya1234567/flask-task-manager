@@ -4,6 +4,34 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import logout_user, login_required, current_user
 from app.extensions import db
 from .validator import validate_profile, validate_password_change
+
+# --------------------------------
+# Validation Error Messages
+# --------------------------------
+ERROR_MESSAGES = {
+    "username": {
+        "required": "ユーザー名は必須です",
+        "duplicate": "ユーザー名はすでに使われています",
+    },
+    "email": {
+        "required": "メールアドレスは必須です",
+        "duplicate": "メールアドレスはすでに使われています",
+    },
+    "current_password":{
+        "required": "現在のパスワードは必須です",
+        "mismatch": "現在のパスワードが正しくありません"
+    },
+    "new_password": {
+        "required": "パスワードは必須です",
+        "too_short": "パスワードは8文字以上にしてください",
+        "already_used": "現在のパスワードと同じものは使用できません"
+    },
+    "new_password_confirm": {
+        "required": "確認用のパスワードは必須です",
+        "mismatch": "パスワードが一致しません",
+    },
+}
+
 # ----------------------------------------
 # プロフィールページ
 # ----------------------------------------
@@ -30,7 +58,8 @@ def update_profile():
     )
 
     if errors:
-        for msg in errors.values():
+        for field,key in errors.items():
+            msg = ERROR_MESSAGES[field][key]
             flash(msg, "error")
         return render_template("profile/profile.html",  user=current_user, errors=errors)
     
@@ -50,18 +79,19 @@ def update_profile():
 def change_password():
     current_password=request.form.get("current_password")
     new_password=request.form.get("new_password")
-    confirm_password=request.form.get("new_password_confirm")
+    new_password_confirm=request.form.get("new_password_confirm")
 
     # POST：認証処理
     errors = validate_password_change(
         current_password=current_password,
         new_password=new_password,
-        confirm_password=confirm_password,
+        new_password_confirm=new_password_confirm,
         user = current_user
     )
     
     if errors:
-        for msg in errors.values():
+        for field, key in errors.items():
+            msg = ERROR_MESSAGES[field][key]
             flash(msg, "error")
         return render_template("profile/profile.html", user=current_user, errors=errors)
              
